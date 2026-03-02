@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codenprofit | Where Raw Syntax Meets Commercial Sovereignty</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js for 3D neural mesh -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <style>
+        /* Your existing styles remain exactly the same */
+        :root {
+            --primary-dark: #0A0A0F;
+            --neural-gold: #FFD700;
+            --neural-gold-light: #FFF5CC;
+            --neural-gold-glow: rgba(255, 215, 0, 0.6);
+            --pure-white: #FFFFFF;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-dark);
+            color: var(--pure-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, .font-heading {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        #neural-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .content-layer {
+            position: relative;
+            z-index: 10;
+        }
+        
+        .glass-effect {
+            background: rgba(15, 15, 25, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .glass-effect-gold {
+            background: rgba(255, 215, 0, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .gold-gradient-text {
+            background: linear-gradient(90deg, #FFD700 0%, #FFF5CC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-neural {
+            background: linear-gradient(90deg, #FFD700 0%, #FFED4E 100%);
+            color: var(--primary-dark);
+            font-weight: 700;
+            transition: all 0.4s ease;
+        }
+        
+        .btn-neural:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.4);
+        }
+        
+        .btn-outline-neural {
+            border: 2px solid var(--neural-gold);
+            color: var(--neural-gold);
+            font-weight: 600;
+            transition: all 0.4s ease;
+        }
+        
+        .btn-outline-neural:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-25px); }
+        }
+        
+        .float-animation {
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .feature-card {
+            transition: all 0.4s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- 3D Neural Mesh Canvas -->
+    <canvas id="neural-mesh"></canvas>
+    
+    <!-- Notification -->
+    <div id="notification" class="notification glass-effect rounded-lg p-4 shadow-lg max-w-sm">
+        <div class="flex items-center">
+            <div id="notification-icon" class="w-10 h-10 rounded-full flex items-center justify-center mr-4">
+                <i class="fas fa-check"></i>
+            </div>
+            <div>
+                <p class="font-medium" id="notification-title">Success!</p>
+                <p class="text-sm text-gray-300" id="notification-message"></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Content Layer -->
+    <div class="content-layer">
+        <!-- Navigation -->
+        <nav class="glass-effect fixed top-0 left-0 right-0 z-50">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-full gradient-accent flex items-center justify-center bg-gradient-to-br from-yellow-600 to-yellow-300">
+                            <span class="font-bold text-primary-dark text-xl">C</span>
+                        </div>
+                        <div>
+                            <span class="text-2xl font-bold gold-gradient-text tracking-wider">CODENPROFIT</span>
+                            <p class="text-xs text-gray-400 -mt-1">Code. Build. Profit.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="hidden md:flex items-center space-x-8">
+                        <a href="#features" class="text-gray-300 hover:text-neural-gold transition-colors">Features</a>
+                        <a href="#services" class="text-gray-300 hover:text-neural-gold transition-colors">Services</a>
+                        <a href="#manifesto" class="text-gray-300 hover:text-neural-gold transition-colors">Manifesto</a>
+                        <a href="auth.html?action=signup&type=developer" class="px-5 py-2 rounded-lg btn-neural font-semibold">Join as Developer</a>
+                        <a href="auth.html?action=signup&type=host" class="px-5 py-2 rounded-lg btn-outline-neural font-semibold">Hire Talent</a>
+                    </div>
+                    
+                    <button id="mobile-menu-btn" class="md:hidden text-neural-gold">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+                
+                <div id="mobile-menu" class="md:hidden mt-4 hidden">
+                    <div class="space-y-4 py-4">
+                        <a href="#features" class="block text-gray-300 hover:text-neural-gold">Features</a>
+                        <a href="#services" class="block text-gray-300 hover:text-neural-gold">Services</a>
+                        <a href="#manifesto" class="block text-gray-300 hover:text-neural-gold">Manifesto</a>
+                        <div class="pt-4 border-t border-gray-700">
+                            <a href="auth.html?action=signup&type=developer" class="block px-5 py-3 rounded-lg btn-neural font-semibold text-center mb-3">Join as Developer</a>
+                            <a href="auth.html?action=signup&type=host" class="block px-5 py-3 rounded-lg btn-outline-neural font-semibold text-center">Hire Talent</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="relative pt-40 pb-32 px-6">
+            <div class="container mx-auto max-w-6xl relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <div>
+                        <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
+                            <span class="gold-gradient-text">Empowering</span><br>
+                            <span class="text-white">local businesses with </span><br>
+                            <span class="gold-gradient-text">student-led digital transformation.</span>
+                        </h1>
+                        
+                        <p class="text-xl text-gray-300 mb-10">
+                            The elite marketplace bridging the gap between student talent and real-world business impact.
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row gap-5">
+                            <a href="auth.html?action=signup&type=developer" class="px-8 py-4 rounded-xl btn-neural text-lg font-bold text-center">
+                                <i class="fas fa-code mr-3"></i> Join as Developer
+                            </a>
+                            <a href="auth.html?action=signup&type=host" class="px-8 py-4 rounded-xl btn-outline-neural text-lg font-bold text-center">
+                                <i class="fas fa-user-tie mr-3"></i> Hire Talent
+                            </a>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16">
+                            <div class="glass-effect rounded-xl p-4 text-center">
+                                <div class="text-3xl font-bold gold-gradient-text mb-1">150+</div>
+                                <div class="text-sm text-gray-400">Developers</div>
+                            </div>
+                            <div class="glass-effect rounded-xl p-4 text-center">
+                                <div class="text-3xl font-bold gold-gradient-text mb-1">50+</div>
+                                <div class="text-sm text-gray-400">Projects</div>
+                            </div>
+                            <div class="glass-effect rounded-xl p-4 text-center">
+                                <div class="text-3xl font-bold gold-gradient-text mb-1">0%</div>
+                                <div class="text-sm text-gray-400">Agency Markup</div>
+                            </div>
+                            <div class="glass-effect rounded-xl p-4 text-center">
+                                <div class="text-3xl font-bold gold-gradient-text mb-1">24/7</div>
+                                <div class="text-sm text-gray-400">Support</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="relative float-animation">
+                        <div class="glass-effect-gold rounded-2xl p-2">
+                            <div class="rounded-xl overflow-hidden bg-gradient-to-br from-black to-gray-900 h-96 flex items-center justify-center">
+                                <div class="text-center p-8">
+                                    <div class="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-yellow-600 to-yellow-300 flex items-center justify-center">
+                                        <i class="fas fa-project-diagram text-5xl text-black"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold gold-gradient-text mb-3">Neural Mesh Active</h3>
+                                    <p class="text-gray-400">150+ elite minds connecting in real-time</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-20 px-6">
+            <div class="container mx-auto max-w-6xl">
+                <h2 class="text-4xl font-bold text-center mb-4 gold-gradient-text">Why Choose Codenprofit?</h2>
+                <p class="text-xl text-gray-400 text-center mb-16 max-w-3xl mx-auto">We've redefined the developer-client relationship</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="feature-card glass-effect rounded-2xl p-8">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-700 to-yellow-400 flex items-center justify-center mb-6 mx-auto">
+                            <i class="fas fa-user-shield text-3xl text-black"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-center mb-4">Elite Vetting</h3>
+                        <p class="text-gray-300 text-center">Top 5% of student talent, verified through rigorous assessment</p>
+                    </div>
+                    
+                    <div class="feature-card glass-effect rounded-2xl p-8">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-700 to-yellow-400 flex items-center justify-center mb-6 mx-auto">
+                            <i class="fas fa-balance-scale text-3xl text-black"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-center mb-4">Accountability</h3>
+                        <p class="text-gray-300 text-center">Badge & Strike System ensures professional-grade quality</p>
+                    </div>
+                    
+                    <div class="feature-card glass-effect rounded-2xl p-8">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-700 to-yellow-400 flex items-center justify-center mb-6 mx-auto">
+                            <i class="fas fa-bolt text-3xl text-black"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-center mb-4">Direct Access</h3>
+                        <p class="text-gray-300 text-center">Work directly with developers, no agency markup</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services" class="py-20 px-6 bg-gradient-to-b from-black to-gray-900">
+            <div class="container mx-auto max-w-6xl">
+                <h2 class="text-4xl font-bold text-center mb-4 gold-gradient-text">Our Services</h2>
+                <p class="text-xl text-gray-400 text-center mb-16">Elite solutions for your business needs</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="glass-effect rounded-2xl p-8 text-center">
+                        <i class="fas fa-gem text-4xl text-yellow-400 mb-4"></i>
+                        <h3 class="text-xl font-bold mb-4">Luxury Web Design</h3>
+                        <p class="text-gray-400">High-end digital experiences for premium brands</p>
+                    </div>
+                    
+                    <div class="glass-effect rounded-2xl p-8 text-center">
+                        <i class="fas fa-shopping-cart text-4xl text-yellow-400 mb-4"></i>
+                        <h3 class="text-xl font-bold mb-4">E-Commerce</h3>
+                        <p class="text-gray-400">Conversion-optimized online stores</p>
+                    </div>
+                    
+                    <div class="glass-effect rounded-2xl p-8 text-center">
+                        <i class="fas fa-robot text-4xl text-yellow-400 mb-4"></i>
+                        <h3 class="text-xl font-bold mb-4">Business Automation</h3>
+                        <p class="text-gray-400">Custom tools for workflow optimization</p>
+                    </div>
+                    
+                    <div class="glass-effect rounded-2xl p-8 text-center">
+                        <i class="fas fa-shield-alt text-4xl text-yellow-400 mb-4"></i>
+                        <h3 class="text-xl font-bold mb-4">Technical Guardianship</h3>
+                        <p class="text-gray-400">24/7 monitoring and maintenance</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Manifesto -->
+        <section id="manifesto" class="py-20 px-6">
+            <div class="container mx-auto max-w-4xl">
+                <div class="glass-effect-gold rounded-3xl p-12 text-center">
+                    <h2 class="text-4xl font-bold mb-8 gold-gradient-text">The Architect's Manifesto</h2>
+                    <p class="text-xl text-gray-300 mb-6">To dismantle the "Entry Level" barrier and democratize professional tech by providing students with real-world commercial capital.</p>
+                    <p class="text-lg text-gray-400">We don't just build websites; we engineer technical meritocracies where precision is our only currency.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="py-20 px-6">
+            <div class="container mx-auto max-w-4xl text-center">
+                <div class="glass-effect-gold rounded-3xl p-12">
+                    <h2 class="text-4xl font-bold mb-6">Ready to Engineer Your Sovereignty?</h2>
+                    <p class="text-xl text-gray-300 mb-8">Join the movement where code transforms into commercial capital.</p>
+                    <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                        <a href="auth.html?action=signup&type=developer" class="px-8 py-4 rounded-xl btn-neural text-lg font-bold">
+                            <i class="fas fa-rocket mr-3"></i> Become a Developer
+                        </a>
+                        <a href="auth.html?action=signup&type=host" class="px-8 py-4 rounded-xl btn-outline-neural text-lg font-bold">
+                            <i class="fas fa-briefcase mr-3"></i> Hire Talent
+                        </a>
+                    </div>
+                    <p class="text-gray-400 mt-8">
+                        Already a member? <a href="auth.html" class="text-neural-gold hover:underline">Sign in</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="glass-effect border-t border-gray-800 py-12 px-6">
+            <div class="container mx-auto max-w-6xl">
+                <div class="text-center">
+                    <p class="text-gray-500">&copy; 2025 Codenprofit. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                if (this.getAttribute('href') !== '#') {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const target = document.getElementById(targetId);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                        document.getElementById('mobile-menu').classList.add('hidden');
+                    }
+                }
+            });
+        });
+
+        // Check if user is logged in
+        function checkAuthState() {
+            if (window.firebaseInitialized && FirebaseService && FirebaseService.getAuth()) {
+                const auth = FirebaseService.getAuth();
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        // Update UI for logged in user
+                        console.log('User logged in:', user.email);
+                        // You could show a different button for logged in users
+                    }
+                });
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthState();
+            initNeuralMesh();
+            
+            // Show Firebase connection status
+            if (window.firebaseInitialized) {
+                console.log('🔥 Firebase connected to project: codenprofit-17152');
+            } else {
+                console.warn('⚠️ Running in demo mode');
+            }
+        });
+
+        // 3D Neural Mesh
+        let scene, camera, renderer, particleSystem;
+
+        function initNeuralMesh() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 30;
+            
+            renderer = new THREE.WebGLRenderer({ 
+                canvas: document.getElementById('neural-mesh'),
+                alpha: true 
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            // Particles
+            const particleCount = 150;
+            const particles = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 100;
+                positions[i + 1] = (Math.random() - 0.5) * 100;
+                positions[i + 2] = (Math.random() - 0.5) * 100;
+            }
+            
+            particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const material = new THREE.PointsMaterial({
+                color: 0xFFD700,
+                size: 0.8,
+                transparent: true,
+                opacity: 0.6
+            });
+            
+            particleSystem = new THREE.Points(particles, material);
+            scene.add(particleSystem);
+            
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            particleSystem.rotation.x += 0.0005;
+            particleSystem.rotation.y += 0.001;
+            
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Notification function (for any page messages)
+        function showNotification(title, message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notification-icon');
+            const titleEl = document.getElementById('notification-title');
+            const msgEl = document.getElementById('notification-message');
+            
+            icon.className = 'w-10 h-10 rounded-full flex items-center justify-center mr-4';
+            
+            switch(type) {
+                case 'success':
+                    icon.className += ' bg-green-500/20';
+                    icon.innerHTML = '<i class="fas fa-check text-green-500"></i>';
+                    break;
+                case 'error':
+                    icon.className += ' bg-red-500/20';
+                    icon.innerHTML = '<i class="fas fa-exclamation-circle text-red-500"></i>';
+                    break;
+                case 'info':
+                    icon.className += ' bg-blue-500/20';
+                    icon.innerHTML = '<i class="fas fa-info-circle text-blue-500"></i>';
+                    break;
+            }
+            
+            titleEl.textContent = title;
+            msgEl.textContent = message;
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
