@@ -8,7 +8,972 @@
 <style>
 :root{
   --bg:#07071a;
+  --surface:rgba(255,255,255,0.04);<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>codenprofit — Host Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#07071a;
   --surface:rgba(255,255,255,0.04);
+  --surface2:rgba(255,255,255,0.07);
+  --border:rgba(255,255,255,0.08);
+  --border-hover:rgba(6,182,212,0.4);
+  --accent:#06b6d4;
+  --accent2:#8b5cf6;
+  --accent3:#f59e0b;
+  --green:#34d399;
+  --red:#f87171;
+  --text:#f1f5f9;
+  --muted:rgba(241,245,249,0.45);
+  --muted2:rgba(241,245,249,0.2);
+  --nav-h:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 50% at 100% 0%, rgba(6,182,212,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 0% 100%, rgba(139,92,246,0.08) 0%, transparent 60%);
+}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:100;height:var(--nav-h);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;
+  background:rgba(7,7,26,0.88);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-text{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text)}
+.logo-text span{color:var(--accent)}
+.nav-center{display:flex;gap:2px}
+.nav-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:8px 16px;border:none;background:transparent;
+  color:var(--muted);cursor:pointer;border-radius:10px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  transition:all .2s;position:relative;
+}
+.nav-btn:hover{color:var(--text);background:var(--surface)}
+.nav-btn.active{color:var(--text);background:rgba(6,182,212,0.12)}
+.notif-dot{
+  position:absolute;top:7px;right:7px;
+  width:7px;height:7px;border-radius:50%;background:var(--red);
+  border:2px solid var(--bg);display:none;
+}
+.nav-right{display:flex;align-items:center;gap:10px}
+.company-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 14px;background:rgba(6,182,212,0.08);
+  border:1px solid rgba(6,182,212,0.2);border-radius:20px;
+  font-size:12px;font-weight:600;color:var(--accent);
+}
+.avatar-btn{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:15px;cursor:pointer;border:2px solid var(--border);flex-shrink:0;
+}
+.btn-ghost{padding:8px 14px;border:1px solid var(--border);background:none;color:var(--muted);border-radius:8px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-ghost:hover{border-color:var(--border-hover);color:var(--text)}
+
+/* ── LAYOUT ── */
+main{max-width:1140px;margin:0 auto;padding:32px 28px;position:relative;z-index:1}
+.page{display:none}.page.active{display:block}
+.page-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;margin-bottom:4px}
+.page-sub{color:var(--muted);font-size:14px;margin-bottom:28px}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:30px}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;transition:border-color .2s}
+.stat-box:hover{border-color:var(--border-hover)}
+.stat-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.stat-value{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1;margin-bottom:4px}
+.stat-sub{font-size:12px;color:var(--muted)}
+.stat-box.cyan{border-color:rgba(6,182,212,0.25);background:rgba(6,182,212,0.05)}
+.stat-box.purple{border-color:rgba(139,92,246,0.25);background:rgba(139,92,246,0.05)}
+.stat-box.amber{border-color:rgba(245,158,11,0.25);background:rgba(245,158,11,0.05)}
+.stat-box.green{border-color:rgba(52,211,153,0.25);background:rgba(52,211,153,0.05)}
+
+/* ── BUTTONS ── */
+.btn-primary{
+  padding:10px 20px;background:linear-gradient(135deg,var(--accent),#0891b2);
+  border:none;color:#fff;border-radius:10px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  transition:all .22s;
+}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-purple{background:linear-gradient(135deg,var(--accent2),#6d28d9)}
+.btn-sm{padding:7px 14px;font-size:12px}
+.btn-outline{padding:9px 18px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;transition:all .2s}
+.btn-outline:hover{border-color:var(--border-hover);color:var(--text)}
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-hd h3{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+
+/* ── DEV CARDS ── */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.filter-chip{padding:7px 15px;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:20px;cursor:pointer;font-size:13px;transition:all .2s}
+.filter-chip:hover,.filter-chip.active{border-color:var(--accent);background:rgba(6,182,212,0.1);color:var(--text)}
+
+.devs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.dev-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  padding:24px;transition:all .25s;display:flex;flex-direction:column;
+}
+.dev-card:hover{border-color:var(--border-hover);transform:translateY(-2px);background:var(--surface2)}
+.dev-card-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.dev-av{
+  width:50px;height:50px;border-radius:14px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;
+}
+.dev-card-top-info h4{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:3px}
+.dev-card-top-info p{color:var(--accent);font-size:13px}
+.dev-bio{color:var(--muted);font-size:13px;line-height:1.55;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dev-skills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.skill-chip{background:rgba(255,255,255,0.06);color:var(--muted);padding:3px 10px;border-radius:6px;font-size:11px}
+.dev-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.dev-rate{font-size:14px;font-weight:700;color:var(--green)}
+.avail-badge{display:flex;align-items:center;gap:5px;font-size:12px}
+.avail-dot{width:7px;height:7px;border-radius:50%}
+.avail-dot.on{background:var(--green)}.avail-dot.off{background:var(--red)}
+.avail-badge.on{color:var(--green)}.avail-badge.off{color:var(--red)}
+.btn-hire{
+  width:100%;padding:11px;
+  background:linear-gradient(135deg,var(--accent),#0891b2);
+  border:none;color:#fff;border-radius:10px;cursor:pointer;font-weight:600;font-size:13px;
+  transition:all .2s;
+}
+.btn-hire:hover{opacity:.9}
+.btn-hire:disabled{opacity:.35;cursor:not-allowed;background:rgba(255,255,255,0.08)}
+.btn-already{
+  width:100%;padding:11px;
+  background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.25);
+  color:var(--green);border-radius:10px;font-size:13px;font-weight:600;cursor:default;
+}
+
+/* ── PROJECTS ── */
+.projects-list{display:flex;flex-direction:column;gap:12px}
+.project-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:22px 26px;transition:border-color .2s;
+}
+.project-item:hover{border-color:var(--border-hover)}
+.pi-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:10px;flex-wrap:wrap}
+.pi-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px}
+.pi-desc{color:var(--muted);font-size:13px}
+.pi-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.status-pill{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:700}
+.sp-open{background:rgba(52,211,153,0.12);color:var(--green)}
+.sp-closed{background:rgba(248,113,113,0.1);color:var(--red)}
+.sp-pending{background:rgba(245,158,11,0.12);color:var(--accent3)}
+.sp-accepted{background:rgba(52,211,153,0.12);color:var(--green)}
+.sp-rejected{background:rgba(248,113,113,0.1);color:var(--red)}
+.pi-meta{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px}
+.pi-meta-item{font-size:12px;color:var(--muted2)}
+.pi-meta-item strong{color:var(--muted)}
+.pi-actions{display:flex;gap:8px;margin-top:14px}
+.btn-close-proj{padding:7px 14px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.btn-close-proj:hover{background:rgba(248,113,113,0.15)}
+
+/* ── APPLICATIONS ── */
+.app-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:20px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  transition:border-color .2s;margin-bottom:10px;
+}
+.app-item:hover{border-color:var(--border-hover)}
+.app-av{
+  width:44px;height:44px;border-radius:12px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent2),#6d28d9);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;
+}
+.app-info{flex:1;min-width:0}
+.app-info h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.app-info p{color:var(--muted);font-size:13px}
+.app-info .app-skill{margin-top:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.app-actions{display:flex;gap:8px;flex-shrink:0}
+.btn-accept-app{padding:8px 16px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:var(--green);border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.btn-accept-app:hover{background:rgba(52,211,153,0.25)}
+.btn-reject-app{padding:8px 16px;background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.25);color:var(--red);border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.btn-reject-app:hover{background:rgba(248,113,113,0.15)}
+
+/* ── PROFILE ── */
+.profile-grid{display:grid;grid-template-columns:280px 1fr;gap:24px}
+@media(max-width:768px){.profile-grid{grid-template-columns:1fr}}
+.profile-sidebar{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;text-align:center;height:fit-content}
+.profile-av-lg{width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;margin:0 auto 14px}
+.profile-sidebar h3{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:3px}
+.profile-sidebar p{color:var(--muted);font-size:13px;margin-bottom:16px}
+.ps-info-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.ps-info-row:last-child{border:none}
+.ps-info-row .label{color:var(--muted)}
+.ps-info-row .val{font-weight:600}
+.profile-form{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:.4px}
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 14px;
+  background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;
+  transition:border .2s,background .2s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);background:rgba(6,182,212,0.04)}
+.field textarea{resize:vertical;min-height:80px}
+.field select option{background:#1a1a2e}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:#111128;border:1px solid rgba(255,255,255,0.1);border-radius:22px;
+  padding:34px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;
+  animation:modalIn .25s ease;
+}
+@keyframes modalIn{from{transform:scale(0.95);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}
+.btn-cancel{padding:10px 20px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);border-radius:10px;cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-cancel:hover{background:rgba(255,255,255,0.1);color:var(--text)}
+
+/* ── QUICK ACTIONS ── */
+.quick-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:32px}
+.qa-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:20px;cursor:pointer;transition:all .22s;
+  display:flex;align-items:center;gap:14px;
+}
+.qa-card:hover{border-color:var(--border-hover);transform:translateY(-2px);background:var(--surface2)}
+.qa-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.qa-cyan{background:rgba(6,182,212,0.15)}
+.qa-purple{background:rgba(139,92,246,0.15)}
+.qa-amber{background:rgba(245,158,11,0.15)}
+.qa-card h4{font-size:14px;font-weight:700;margin-bottom:3px}
+.qa-card p{font-size:12px;color:var(--muted)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;right:28px;z-index:500;background:#0c1333;border:1px solid rgba(6,182,212,0.4);color:#fff;padding:13px 22px;border-radius:12px;font-size:14px;display:none;animation:toastIn .3s ease;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+@keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* Empty */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .e-icon{font-size:48px;margin-bottom:16px}
+.empty p{font-size:14px}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:768px){
+  main{padding:20px 16px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .form-row{grid-template-columns:1fr}
+  .nav-center{display:none}
+}
+</style>
+</head>
+<body>
+<!-- NAV -->
+<nav>
+  <a class="logo" href="index.html">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">code<span>n</span>profit</div>
+  </a>
+  <div class="nav-center">
+    <button class="nav-btn active" onclick="showPage('dashboard',this)"><span>🏠</span> Dashboard</button>
+    <button class="nav-btn" onclick="showPage('developers',this)"><span>👨‍💻</span> Find Developers</button>
+    <button class="nav-btn" onclick="showPage('projects',this)"><span>📋</span> My Projects</button>
+    <button class="nav-btn" onclick="showPage('applications',this)" id="appsNavBtn">
+      <span>📥</span> Applications
+      <span class="notif-dot" id="appsDot"></span>
+    </button>
+    <button class="nav-btn" onclick="showPage('profile',this)"><span>⚙️</span> Profile</button>
+  </div>
+  <div class="nav-right">
+    <div class="company-pill" id="companyPill">🏢 Company</div>
+    <div class="avatar-btn" id="avatarEl">H</div>
+    <button class="btn-ghost" onclick="handleLogout()">Logout</button>
+  </div>
+</nav>
+
+<main>
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <div class="page-title">Host Dashboard</div>
+    <div class="page-sub" id="dashGreeting">Welcome! Manage your projects and find top developers.</div>
+    <div class="stats-row">
+      <div class="stat-box cyan">
+        <div class="stat-label">My Projects</div>
+        <div class="stat-value" id="st-projects">—</div>
+        <div class="stat-sub">Total posted</div>
+      </div>
+      <div class="stat-box purple">
+        <div class="stat-label">Applications</div>
+        <div class="stat-value" id="st-apps">—</div>
+        <div class="stat-sub">Received</div>
+      </div>
+      <div class="stat-box amber">
+        <div class="stat-label">Hire Requests</div>
+        <div class="stat-value" id="st-hires">—</div>
+        <div class="stat-sub">Sent out</div>
+      </div>
+      <div class="stat-box green">
+        <div class="stat-label">Available Devs</div>
+        <div class="stat-value" id="st-devs">—</div>
+        <div class="stat-sub">Ready to hire</div>
+      </div>
+    </div>
+
+    <div class="section-hd" style="margin-bottom:14px"><h3>⚡ Quick Actions</h3></div>
+    <div class="quick-actions">
+      <div class="qa-card" onclick="openPostProjectModal()">
+        <div class="qa-icon qa-cyan">➕</div>
+        <div><h4>Post a Project</h4><p>Find developers for your next project</p></div>
+      </div>
+      <div class="qa-card" onclick="showPage('developers', document.querySelectorAll('.nav-btn')[1])">
+        <div class="qa-icon qa-purple">🔍</div>
+        <div><h4>Browse Developers</h4><p>Find and hire top talent directly</p></div>
+      </div>
+      <div class="qa-card" onclick="showPage('applications', document.querySelectorAll('.nav-btn')[3])">
+        <div class="qa-icon qa-amber">📥</div>
+        <div><h4>View Applications</h4><p>Review developer applications</p></div>
+      </div>
+    </div>
+
+    <div class="section-hd"><h3>🕐 Recent Applications</h3><button class="btn-outline btn-sm" onclick="showPage('applications',document.querySelectorAll('.nav-btn')[3])">View All</button></div>
+    <div id="dashApps"></div>
+  </div>
+
+  <!-- FIND DEVELOPERS -->
+  <div id="page-developers" class="page">
+    <div class="page-title">Find Developers</div>
+    <div class="page-sub">Browse available developers and send hire requests</div>
+    <div class="filter-bar" id="devFilters">
+      <button class="filter-chip active" onclick="filterDevs('all',this)">All Developers</button>
+      <button class="filter-chip" onclick="filterDevs('available',this)">Available Only</button>
+    </div>
+    <div class="filter-bar" id="skillFilters"></div>
+    <div class="devs-grid" id="devsList"></div>
+  </div>
+
+  <!-- MY PROJECTS -->
+  <div id="page-projects" class="page">
+    <div class="page-title">My Projects</div>
+    <div class="page-sub">Manage your posted projects</div>
+    <div class="section-hd" style="margin-bottom:20px">
+      <div></div>
+      <button class="btn-primary" onclick="openPostProjectModal()">➕ Post New Project</button>
+    </div>
+    <div class="projects-list" id="projectsList"></div>
+  </div>
+
+  <!-- APPLICATIONS -->
+  <div id="page-applications" class="page">
+    <div class="page-title">Developer Applications</div>
+    <div class="page-sub">Review applications from developers for your projects</div>
+    <div id="applicationsList"></div>
+  </div>
+
+  <!-- PROFILE -->
+  <div id="page-profile" class="page">
+    <div class="page-title">Company Profile</div>
+    <div class="page-sub">Keep your company info updated to attract better candidates</div>
+    <div class="profile-grid">
+      <div>
+        <div class="profile-sidebar">
+          <div class="profile-av-lg" id="psAvLg">H</div>
+          <h3 id="psName">Company</h3>
+          <p id="psIndustry">—</p>
+          <div class="ps-info-row"><span class="label">Projects</span><span class="val" id="psProjects">—</span></div>
+          <div class="ps-info-row"><span class="label">Industry</span><span class="val" id="psInd">—</span></div>
+          <div class="ps-info-row"><span class="label">Team Size</span><span class="val" id="psTeam">—</span></div>
+        </div>
+      </div>
+      <div class="profile-form">
+        <div class="form-row">
+          <div class="field">
+            <label>Contact Name</label>
+            <input type="text" id="pf-name" placeholder="Your name"/>
+          </div>
+          <div class="field">
+            <label>Company Name</label>
+            <input type="text" id="pf-company" placeholder="Acme Corp"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Industry</label>
+            <select id="pf-industry">
+              <option>Technology</option>
+              <option>Finance</option>
+              <option>Healthcare</option>
+              <option>E-Commerce</option>
+              <option>Education</option>
+              <option>Media &amp; Entertainment</option>
+              <option>Real Estate</option>
+              <option>Logistics</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Team Size</label>
+            <select id="pf-teamsize">
+              <option value="">Select...</option>
+              <option>1-5</option>
+              <option>6-20</option>
+              <option>21-50</option>
+              <option>51-200</option>
+              <option>200+</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Company Description</label>
+          <textarea id="pf-desc" rows="3" placeholder="Tell developers about your company and culture..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Website</label>
+            <input type="url" id="pf-website" placeholder="https://yourcompany.com"/>
+          </div>
+          <div class="field">
+            <label>LinkedIn</label>
+            <input type="url" id="pf-linkedin" placeholder="https://linkedin.com/company/..."/>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="saveProfile()">💾 Save Profile</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- POST PROJECT MODAL -->
+<div class="modal-overlay" id="postProjectModal">
+  <div class="modal">
+    <h3>📋 Post a New Project</h3>
+    <div class="form-row">
+      <div class="field">
+        <label>Project Title *</label>
+        <input type="text" id="pp-title" placeholder="e.g. Build a React Dashboard"/>
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="pp-category">
+          <option>Web Development</option>
+          <option>Mobile App</option>
+          <option>AI / Machine Learning</option>
+          <option>Blockchain</option>
+          <option>UI/UX Design</option>
+          <option>DevOps / Cloud</option>
+          <option>Data Engineering</option>
+          <option>E-Commerce</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Description *</label>
+      <textarea id="pp-desc" rows="4" placeholder="Describe what you need in detail — tech stack, goals, deliverables..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Budget (USD)</label>
+        <input type="number" id="pp-budget" placeholder="e.g. 3000" min="0"/>
+      </div>
+      <div class="field">
+        <label>Timeline / Duration</label>
+        <select id="pp-duration">
+          <option>Less than 1 week</option>
+          <option>1-2 weeks</option>
+          <option>1 month</option>
+          <option>2-3 months</option>
+          <option>3-6 months</option>
+          <option>6+ months</option>
+          <option>Ongoing / Part-time</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Required Skills (comma separated)</label>
+      <input type="text" id="pp-skills" placeholder="React, Node.js, PostgreSQL, Docker..."/>
+    </div>
+    <div class="field">
+      <label>Experience Level</label>
+      <select id="pp-level">
+        <option>Any Level</option>
+        <option>Junior (0-2 years)</option>
+        <option>Mid-level (2-5 years)</option>
+        <option>Senior (5+ years)</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('postProjectModal')">Cancel</button>
+      <button class="btn-primary" id="ppSubmitBtn" onclick="postProject()">Post Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- HIRE DEVELOPER MODAL -->
+<div class="modal-overlay" id="hireModal">
+  <div class="modal">
+    <h3>📨 <span id="hireModalTitle">Send Hire Request</span></h3>
+    <input type="hidden" id="hire-devId"/>
+    <input type="hidden" id="hire-devName"/>
+    <div class="field" style="background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:10px;padding:14px;margin-bottom:18px">
+      <div style="font-size:13px;color:var(--muted)">Sending to</div>
+      <div style="font-size:15px;font-weight:700;margin-top:4px" id="hireDevDisplay">—</div>
+    </div>
+    <div class="field">
+      <label>Your Message *</label>
+      <textarea id="hire-message" rows="4" placeholder="Tell the developer about your project, what you need, timeline, and why you'd like to work with them..."></textarea>
+    </div>
+    <div class="field">
+      <label>Attach to Project (optional)</label>
+      <select id="hire-project">
+        <option value="">— General inquiry, no specific project —</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Proposed Budget / Rate</label>
+      <input type="text" id="hire-budget" placeholder="e.g. $50/hr or $2000 fixed"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('hireModal')">Cancel</button>
+      <button class="btn-primary" id="hireSendBtn" onclick="sendHireRequest()">📨 Send Request</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+let CU = null, UD = null;
+let allDevs = [], myProjects = [];
+let sentHireIds = new Set();
+let devFilter = 'all', skillFilter = 'all';
+
+window.addEventListener('load', () => {
+  initializeFirebase();
+  firebase.auth().onAuthStateChanged(async user => {
+    if (!user) return (window.location.href = 'auth.html');
+    CU = user;
+    const res = await FirebaseService.getUserType(user.uid);
+    if (!res.success || res.type !== 'host') return (window.location.href = 'dev.html');
+    UD = res.data;
+    boot();
+  });
+});
+
+async function boot() {
+  loadNav();
+  await Promise.all([loadDashboard(), loadDevelopers(), loadProjects(), loadApplications()]);
+  loadProfileForm();
+}
+
+function loadNav() {
+  const name = UD.companyName || UD.displayName || 'Company';
+  document.getElementById('avatarEl').textContent = name[0].toUpperCase();
+  document.getElementById('companyPill').textContent = '🏢 ' + name;
+  document.getElementById('dashGreeting').textContent = `Welcome back, ${UD.displayName || name}! Here's your activity overview.`;
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────
+async function loadDashboard() {
+  const [devRes, projRes, appRes, hireRes] = await Promise.all([
+    FirebaseService.getDevelopers({ available: true }),
+    FirebaseService.getProjects(CU.uid),
+    FirebaseService.getApplications(CU.uid),
+    FirebaseService.getSentHireRequests(CU.uid)
+  ]);
+
+  document.getElementById('st-devs').textContent = devRes.success ? devRes.developers.length : 0;
+  document.getElementById('st-projects').textContent = projRes.success ? projRes.projects.length : 0;
+
+  if (appRes.success) {
+    document.getElementById('st-apps').textContent = appRes.applications.length;
+    const pending = appRes.applications.filter(a => a.status === 'pending');
+    if (pending.length) {
+      document.getElementById('appsDot').style.display = 'block';
+    }
+    const el = document.getElementById('dashApps');
+    const recent = appRes.applications.slice(0, 4);
+    el.innerHTML = recent.length ? recent.map(appItemHTML).join('') :
+      '<div class="empty"><div class="e-icon">📥</div><p>No applications yet. Post a project to receive applications!</p></div>';
+  }
+
+  if (hireRes.success) {
+    document.getElementById('st-hires').textContent = hireRes.requests.length;
+    hireRes.requests.forEach(r => sentHireIds.add(r.developerId));
+  }
+}
+
+// ── DEVELOPERS ───────────────────────────────────────────────
+async function loadDevelopers() {
+  const el = document.getElementById('devsList');
+  el.innerHTML = '<p style="color:var(--muted);padding:20px;grid-column:1/-1">Loading developers...</p>';
+  const res = await FirebaseService.getDevelopers();
+  if (!res.success || !res.developers.length) {
+    el.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="e-icon">👨‍💻</div><p>No developers registered yet</p></div>';
+    return;
+  }
+  allDevs = res.developers;
+  buildSkillFilters();
+  renderDevs(allDevs);
+}
+
+function buildSkillFilters() {
+  const skills = new Set();
+  allDevs.forEach(d => { if (d.primarySkill) skills.add(d.primarySkill); });
+  document.getElementById('skillFilters').innerHTML = [...skills].map(s =>
+    `<button class="filter-chip" onclick="setSkillFilter('${esc(s)}',this)">${esc(s)}</button>`
+  ).join('') + (skills.size ? `<button class="filter-chip" onclick="setSkillFilter('all',this)">Clear Filter</button>` : '');
+}
+
+function filterDevs(type, btn) {
+  devFilter = type;
+  document.querySelectorAll('#devFilters .filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyDevFilters();
+}
+
+function setSkillFilter(skill, btn) {
+  skillFilter = skill;
+  document.querySelectorAll('#skillFilters .filter-chip').forEach(b => b.classList.remove('active'));
+  if (skill !== 'all') btn.classList.add('active');
+  applyDevFilters();
+}
+
+function applyDevFilters() {
+  let filtered = allDevs;
+  if (devFilter === 'available') filtered = filtered.filter(d => d.available);
+  if (skillFilter !== 'all') filtered = filtered.filter(d => d.primarySkill === skillFilter);
+  renderDevs(filtered);
+}
+
+function renderDevs(devs) {
+  const el = document.getElementById('devsList');
+  el.innerHTML = devs.length ? devs.map(devCardHTML).join('') :
+    '<div class="empty" style="grid-column:1/-1"><div class="e-icon">🔍</div><p>No developers match your filters</p></div>';
+}
+
+function devCardHTML(d) {
+  const name = d.displayName || 'Developer';
+  const skills = (d.skills || []).slice(0, 3);
+  const alreadySent = sentHireIds.has(d.id);
+  return `<div class="dev-card">
+    <div class="dev-card-top">
+      <div class="dev-av">${name[0].toUpperCase()}</div>
+      <div class="dev-card-top-info">
+        <h4>${esc(name)}</h4>
+        <p>${esc(d.primarySkill || 'Developer')}</p>
+      </div>
+    </div>
+    ${d.bio ? `<div class="dev-bio">${esc(d.bio)}</div>` : ''}
+    ${skills.length ? `<div class="dev-skills">${skills.map(s => `<span class="skill-chip">${esc(s)}</span>`).join('')}</div>` : ''}
+    <div class="dev-meta">
+      <span class="dev-rate">$${d.hourlyRate || '?'}/hr</span>
+      <span class="avail-badge ${d.available ? 'on' : 'off'}">
+        <span class="avail-dot ${d.available ? 'on' : 'off'}"></span>
+        ${d.available ? 'Available' : 'Unavailable'}
+      </span>
+    </div>
+    ${d.experience ? `<div style="font-size:12px;color:var(--muted);margin-bottom:14px">🏅 ${esc(d.experience)} experience</div>` : ''}
+    ${alreadySent
+      ? `<button class="btn-already">✓ Request Sent</button>`
+      : `<button class="btn-hire"
+           data-devid="${esc(d.id)}"
+           data-devname="${esc(name)}"
+           data-devskill="${esc(d.primarySkill||'')}"
+           onclick="openHireModal(this.dataset.devid,this.dataset.devname,this.dataset.devskill,${!!d.available})"
+           ${!d.available ? 'disabled' : ''}>${d.available ? '📨 Send Hire Request' : '🔒 Unavailable'}</button>`
+    }
+  </div>`;
+}
+
+// ── PROJECTS ─────────────────────────────────────────────────
+async function loadProjects() {
+  const el = document.getElementById('projectsList');
+  const res = await FirebaseService.getProjects(CU.uid);
+  if (!res.success || !res.projects.length) {
+    el.innerHTML = '<div class="empty"><div class="e-icon">📋</div><p>No projects yet. Post your first project to start finding developers!</p></div>';
+    myProjects = [];
+    return;
+  }
+  myProjects = res.projects;
+  el.innerHTML = res.projects.map(projectItemHTML).join('');
+}
+
+function projectItemHTML(p) {
+  const skills = (p.requiredSkills || []).slice(0, 5);
+  // Clean budget: strip quotes, $, commas, whitespace that may come from free-text input
+  const rawBudget = String(p.budget || '').replace(/['"$,\s]/g, '').trim();
+  const budgetDisplay = rawBudget && rawBudget !== '0' ? '$' + rawBudget : 'Open';
+  // Clean duration: strip quotes
+  const durationDisplay = String(p.duration || '').replace(/['"]/g, '').trim() || 'Flexible';
+  return `<div class="project-item" id="proj-${p.id}">
+    <div class="pi-top">
+      <div>
+        <div class="pi-title">${esc(p.title)}</div>
+        <div class="pi-desc">${esc((p.description || '').substring(0, 120))}${(p.description || '').length > 120 ? '...' : ''}</div>
+      </div>
+      <div class="pi-right">
+        <span class="status-pill sp-${p.status === 'open' ? 'open' : 'closed'}">${p.status === 'open' ? '🟢 Open' : '🔴 Closed'}</span>
+      </div>
+    </div>
+    ${skills.length ? `<div class="dev-skills" style="margin-top:10px">${skills.map(s => `<span class="skill-chip">${esc(s)}</span>`).join('')}</div>` : ''}
+    <div class="pi-meta">
+      <span class="pi-meta-item">💰 Budget: <strong>${budgetDisplay}</strong></span>
+      <span class="pi-meta-item">⏱️ Duration: <strong>${esc(durationDisplay)}</strong></span>
+      <span class="pi-meta-item">📚 Level: <strong>${esc(p.level || 'Any')}</strong></span>
+      <span class="pi-meta-item">📂 Category: <strong>${esc(p.category || '—')}</strong></span>
+    </div>
+    ${p.status === 'open' ? `<div class="pi-actions">
+      <button class="btn-close-proj" onclick="closeProject('${p.id}')">🔒 Close Project</button>
+    </div>` : ''}
+  </div>`;
+}
+
+async function closeProject(projectId) {
+  if (!confirm('Close this project? It will no longer accept new applications.')) return;
+  const res = await FirebaseService.updateProject(projectId, { status: 'closed' });
+  if (res.success) { showToast('Project closed'); loadProjects(); }
+  else showToast('Error: ' + res.error);
+}
+
+// ── APPLICATIONS ─────────────────────────────────────────────
+async function loadApplications() {
+  const el = document.getElementById('applicationsList');
+  const res = await FirebaseService.getApplications(CU.uid);
+  if (!res.success || !res.applications.length) {
+    el.innerHTML = '<div class="empty"><div class="e-icon">📥</div><p>No applications yet</p></div>';
+    return;
+  }
+  el.innerHTML = res.applications.map(appItemHTML).join('');
+}
+
+function appItemHTML(a) {
+  const name = a.developerName || 'Developer';
+  const actions = a.status === 'pending'
+    ? `<div class="app-actions">
+        <button class="btn-accept-app" onclick="respondApp('${a.id}','accepted')">✓ Accept</button>
+        <button class="btn-reject-app" onclick="respondApp('${a.id}','rejected')">✕ Reject</button>
+       </div>`
+    : `<span class="status-pill sp-${a.status}">${a.status}</span>`;
+  return `<div class="app-item" id="app-${a.id}">
+    <div class="app-av">${name[0].toUpperCase()}</div>
+    <div class="app-info">
+      <h4>${esc(name)} applied for <strong>${esc(a.projectTitle || 'your project')}</strong></h4>
+      <p>Skill: ${esc(a.developerSkill || '—')}</p>
+      <div class="app-skill">
+        <span class="skill-chip">${esc(a.developerSkill || '—')}</span>
+      </div>
+    </div>
+    ${actions}
+  </div>`;
+}
+
+async function respondApp(appId, status) {
+  const res = await FirebaseService.updateStatus('applications', appId, status);
+  if (res.success) {
+    showToast(status === 'accepted' ? '✅ Application accepted!' : 'Application rejected');
+    loadApplications(); loadDashboard();
+  } else showToast('Error: ' + res.error);
+}
+
+// ── MODALS ───────────────────────────────────────────────────
+function openPostProjectModal() {
+  ['pp-title','pp-desc','pp-budget','pp-skills'].forEach(id => document.getElementById(id).value = '');
+  openModal('postProjectModal');
+}
+
+async function postProject() {
+  const title = document.getElementById('pp-title').value.trim();
+  const desc  = document.getElementById('pp-desc').value.trim();
+  if (!title || !desc) return showToast('⚠ Please fill in title and description');
+
+  const btn = document.getElementById('ppSubmitBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Posting...';
+
+  const skillsRaw = document.getElementById('pp-skills').value;
+  const data = {
+    title, description: desc,
+    category: document.getElementById('pp-category').value,
+    budget: document.getElementById('pp-budget').value || '0',
+    duration: document.getElementById('pp-duration').value,
+    level: document.getElementById('pp-level').value,
+    requiredSkills: skillsRaw.split(',').map(s => s.trim()).filter(Boolean),
+    hostId: CU.uid,
+    hostName: UD.displayName || UD.companyName || 'Host',
+    companyName: UD.companyName || ''
+  };
+
+  const res = await FirebaseService.createProject(data);
+  if (res.success) {
+    showToast('✅ Project posted successfully!');
+    closeModal('postProjectModal');
+    loadProjects(); loadDashboard();
+  } else showToast('Error: ' + res.error);
+
+  btn.disabled = false; btn.innerHTML = 'Post Project';
+}
+
+function openHireModal(devId, devName, devSkill, available) {
+  document.getElementById('hire-devId').value = devId;
+  document.getElementById('hire-devName').value = devName;
+  document.getElementById('hireModalTitle').textContent = 'Send Hire Request';
+  document.getElementById('hireDevDisplay').textContent = devName + (devSkill ? ' · ' + devSkill : '');
+  document.getElementById('hire-message').value = '';
+  document.getElementById('hire-budget').value = '';
+
+  const sel = document.getElementById('hire-project');
+  sel.innerHTML = '<option value="">— General inquiry, no specific project —</option>';
+  myProjects.filter(p => p.status === 'open').forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id; opt.textContent = p.title;
+    sel.appendChild(opt);
+  });
+
+  openModal('hireModal');
+}
+
+async function sendHireRequest() {
+  const devId   = document.getElementById('hire-devId').value;
+  const devName = document.getElementById('hire-devName').value;
+  const message = document.getElementById('hire-message').value.trim();
+  if (!message) return showToast('⚠ Please write a message');
+
+  const btn = document.getElementById('hireSendBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Sending...';
+
+  const projId    = document.getElementById('hire-project').value;
+  const projTitle = projId ? (myProjects.find(p => p.id === projId)?.title || '') : '';
+  const budget    = document.getElementById('hire-budget').value.trim();
+
+  const res = await FirebaseService.sendHireRequest({
+    hostId: CU.uid,
+    hostName: UD.displayName || UD.companyName || 'Host',
+    companyName: UD.companyName || '',
+    developerId: devId,
+    message,
+    projectId: projId || null,
+    projectTitle: projTitle,
+    proposedBudget: budget
+  });
+
+  if (res.success) {
+    sentHireIds.add(devId);
+    showToast('✅ Hire request sent to ' + devName + '!');
+    closeModal('hireModal');
+    renderDevs(allDevs.filter(d => {
+      if (devFilter === 'available') return d.available;
+      return true;
+    }));
+    loadDashboard();
+  } else showToast(res.error);
+
+  btn.disabled = false; btn.innerHTML = '📨 Send Request';
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ── PROFILE ──────────────────────────────────────────────────
+function loadProfileForm() {
+  document.getElementById('pf-name').value      = UD.displayName || '';
+  document.getElementById('pf-company').value   = UD.companyName || '';
+  document.getElementById('pf-desc').value      = UD.description || '';
+  document.getElementById('pf-website').value   = UD.website || '';
+  document.getElementById('pf-linkedin').value  = UD.linkedin || '';
+
+  const setSelect = (id, val) => {
+    const sel = document.getElementById(id);
+    for (let o of sel.options) if (o.value === val || o.textContent === val) { o.selected = true; break; }
+  };
+  if (UD.industry)  setSelect('pf-industry', UD.industry);
+  if (UD.teamSize)  setSelect('pf-teamsize', UD.teamSize);
+
+  updateProfileSidebar();
+}
+
+function updateProfileSidebar() {
+  const name = UD.companyName || UD.displayName || 'Company';
+  document.getElementById('psAvLg').textContent  = name[0].toUpperCase();
+  document.getElementById('psName').textContent  = name;
+  document.getElementById('psIndustry').textContent = UD.industry || 'Technology';
+  document.getElementById('psInd').textContent   = UD.industry || '—';
+  document.getElementById('psTeam').textContent  = UD.teamSize || '—';
+  document.getElementById('psProjects').textContent = myProjects.length || '—';
+}
+
+async function saveProfile() {
+  const data = {
+    displayName:  document.getElementById('pf-name').value.trim(),
+    companyName:  document.getElementById('pf-company').value.trim(),
+    industry:     document.getElementById('pf-industry').value,
+    teamSize:     document.getElementById('pf-teamsize').value,
+    description:  document.getElementById('pf-desc').value.trim(),
+    website:      document.getElementById('pf-website').value.trim(),
+    linkedin:     document.getElementById('pf-linkedin').value.trim()
+  };
+  if (!data.displayName && !data.companyName) return showToast('⚠ Please enter a name or company name');
+  const res = await FirebaseService.updateProfile('host', CU.uid, data);
+  if (res.success) {
+    UD = { ...UD, ...data };
+    updateProfileSidebar();
+    const displayName = data.companyName || data.displayName || 'Company';
+    document.getElementById('companyPill').textContent = '🏢 ' + displayName;
+    document.getElementById('avatarEl').textContent = displayName[0].toUpperCase();
+    showToast('✅ Profile saved!');
+  } else showToast('Error: ' + res.error);
+}
+
+// ── NAV ──────────────────────────────────────────────────────
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+async function handleLogout() {
+  await FirebaseService.signOut();
+  window.location.href = 'auth.html';
+}
+
+// Close modal on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.style.display = 'none', 3500);
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>
   --surface2:rgba(255,255,255,0.07);
   --border:rgba(255,255,255,0.08);
   --border-hover:rgba(6,182,212,0.4);
