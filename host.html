@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codenprofit | Host Command Center</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-dark: #0A0A0F;
+            --surface-charcoal: #1A1A2E;
+            --accent-gold: #FFD700;
+            --secondary-gold: #B8860B;
+            --light-charcoal: #2D2D44;
+            --pure-white: #FFFFFF;
+            --soft-gray: #A0A0B0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #1a1a2e 100%);
+            color: var(--pure-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4, .font-heading { 
+            font-family: 'Montserrat', sans-serif; 
+        }
+
+        .glass-effect {
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .glass-dark {
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .glass-gold {
+            background: rgba(255, 215, 0, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .gradient-gold {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--secondary-gold) 100%);
+        }
+
+        .text-accent-gold { color: var(--accent-gold); }
+        .text-soft-gray { color: var(--soft-gray); }
+        .bg-primary-dark { background-color: var(--primary-dark); }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--secondary-gold) 100%);
+            color: var(--primary-dark);
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-outline {
+            border: 2px solid var(--accent-gold);
+            color: var(--accent-gold);
+            background: transparent;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-success:hover {
+            background: rgba(16, 185, 129, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-info:hover {
+            background: rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .form-input {
+            background: rgba(45, 45, 68, 0.5);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            color: var(--pure-white);
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+        }
+
+        .form-input::placeholder {
+            color: rgba(160, 160, 176, 0.5);
+        }
+        
+        .status-pill {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .status-open {
+            background: rgba(255, 215, 0, 0.2);
+            color: var(--accent-gold);
+        }
+        
+        .status-in-progress {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60A5FA;
+        }
+        
+        .status-completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            background: rgba(255, 215, 0, 0.15);
+            color: var(--accent-gold);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+        }
+        
+        .skill-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--accent-gold);
+            border-radius: 15px;
+            font-size: 11px;
+            margin: 2px;
+        }
+
+        .sidebar {
+            width: 280px;
+            transition: all 0.3s ease;
+            border-right: 1px solid rgba(255, 215, 0, 0.1);
+        }
+        
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #f59e0b;
+            color: #0A0A0F;
+            text-align: center;
+            padding: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 9999;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            max-width: 380px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10, 10, 15, 0.98);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            flex-direction: column;
+        }
+        
+        .loading-overlay.hidden {
+            display: none;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 215, 0, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent-gold);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .project-card {
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.15);
+        }
+
+        .stat-card {
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-left: 4px solid var(--accent-gold);
+            transform: translateX(10px);
+        }
+
+        .applicant-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .applicant-card:hover {
+            border-left: 4px solid var(--accent-gold);
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                z-index: 40;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .notification {
+                top: 20px;
+                right: 20px;
+                left: 20px;
+                max-width: none;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-gold);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Indicator -->
+    <div id="offline-indicator" class="offline-indicator">
+        <i class="fas fa-wifi-slash mr-2"></i> Offline Mode - Working with local data
+    </div>
+    
+    <!-- Notification -->
+    <div id="notification" class="notification glass-effect rounded-2xl p-6 shadow-2xl">
+        <div class="flex items-start">
+            <div id="notification-icon" class="w-12 h-12 rounded-xl flex items-center justify-center mr-4 bg-yellow-500/20">
+                <i class="fas fa-check text-yellow-500 text-xl"></i>
+            </div>
+            <div class="flex-grow">
+                <p class="font-black text-lg mb-1" id="notification-title">System Message</p>
+                <p class="text-sm text-soft-gray" id="notification-message"></p>
+            </div>
+            <button onclick="hideNotification()" class="text-soft-gray hover:text-accent-gold ml-2">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p class="text-accent-gold text-lg font-bold" id="loading-message">Initializing Host Console...</p>
+    </div>
+
+    <!-- Create Project Modal -->
+    <div id="create-project-modal" class="modal">
+        <div class="modal-content glass-effect rounded-2xl p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black text-accent-gold">Post New Project</h2>
+                <button onclick="closeCreateProjectModal()" class="text-soft-gray hover:text-accent-gold">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="create-project-form" class="space-y-6">
+                <div>
+                    <label class="block text-soft-gray text-sm mb-2">Project Title</label>
+                    <input type="text" id="project-title" required class="w-full px-4 py-3 rounded-xl form-input" placeholder="e.g., E-commerce Platform Development">
+                </div>
+                
+                <div>
+                    <label class="block text-soft-gray text-sm mb-2">Description</label>
+                    <textarea id="project-description" rows="4" required class="w-full px-4 py-3 rounded-xl form-input" placeholder="Describe your project requirements..."></textarea>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-soft-gray text-sm mb-2">Budget Range</label>
+                        <input type="text" id="project-budget" required class="w-full px-4 py-3 rounded-xl form-input" placeholder="$3,000 - $5,000">
+                    </div>
+                    <div>
+                        <label class="block text-soft-gray text-sm mb-2">Timeline</label>
+                        <input type="text" id="project-timeline" required class="w-full px-4 py-3 rounded-xl form-input" placeholder="4-6 weeks">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-soft-gray text-sm mb-2">Skills Required</label>
+                    <div class="flex flex-wrap gap-2 mb-3" id="selected-project-skills"></div>
+                    <div class="grid grid-cols-3 gap-2 mb-3">
+                        <button type="button" class="skill-option px-3 py-2 rounded-lg glass-dark text-sm" data-skill="React">React</button>
+                        <button type="button" class="skill-option px-3 py-2 rounded-lg glass-dark text-sm" data-skill="Node.js">Node.js</button>
+                        <button type="button" class="skill-option px-3 py-2 rounded-lg glass-dark text-sm" data-skill="Python">Python</button>
+                        <button type="button" class="skill-option px-3 py-2 rounded-lg glass-dark text-sm" data-skill="JavaScript">JavaScript</button>
+                        <button type="button" class="skill-option px-3 py-2 rounded-lg glass-dark text-sm" data-skill="TypeScript">TypeScript</button>
+                        <button type="button" class="skill-option px-3 py-2 rounded-lg glass-dark text-sm" data-skill="MongoDB">MongoDB</button>
+                        <button type="button" class="skill-option px-3 py-2 rounded-lg glass-dark text-sm" data-skill="PostgreSQL">PostgreSQL</button>
+                        <button type="button" class="skill-option px-3 py-2 rounded-lg glass-dark text-sm" data-skill="GraphQL">GraphQL</button>
+                        <button type="button" class="skill-option px-3 py-2 rounded-lg glass-dark text-sm" data-skill="Docker">Docker</button>
+                    </div>
+                    <div class="flex">
+                        <input type="text" id="custom-project-skill" class="flex-grow px-4 py-3 rounded-l-xl form-input" placeholder="Add custom skill">
+                        <button type="button" onclick="addProjectSkill()" class="px-6 py-3 rounded-r-xl btn-primary">Add</button>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="closeCreateProjectModal()" class="btn-outline px-6 py-3 rounded-xl">Cancel</button>
+                    <button type="submit" class="btn-primary px-6 py-3 rounded-xl">Post Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Applications Modal -->
+    <div id="applications-modal" class="modal">
+        <div class="modal-content glass-effect rounded-2xl p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black text-accent-gold" id="applications-modal-title">Project Applications</h2>
+                <button onclick="closeApplicationsModal()" class="text-soft-gray hover:text-accent-gold">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="applications-list" class="space-y-4">
+                <!-- Applications will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button id="mobile-menu-btn" class="md:hidden fixed top-20 left-4 z-30 w-10 h-10 rounded-xl glass-effect flex items-center justify-center">
+        <i class="fas fa-bars text-accent-gold"></i>
+    </button>
+    
+    <!-- Sidebar -->
+    <div class="sidebar glass-dark fixed left-0 top-0 h-screen overflow-y-auto z-20">
+        <div class="p-6 border-b border-accent-gold/10">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center">
+                    <span class="font-black text-primary-dark text-lg">C</span>
+                </div>
+                <div>
+                    <span class="text-xl font-black text-accent-gold tracking-tighter">CODENPROFIT</span>
+                    <p class="text-[8px] text-soft-gray uppercase tracking-widest mt-1">Host Console</p>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-xs" id="connection-status">
+                <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                <span class="text-green-400">Connected to codenprofit-17152</span>
+            </div>
+        </div>
+        
+        <div class="p-6 border-b border-accent-gold/10">
+            <div class="flex items-center space-x-4">
+                <div class="w-14 h-14 rounded-xl gradient-gold flex items-center justify-center">
+                    <span class="font-black text-primary-dark text-xl" id="host-initials">H</span>
+                </div>
+                <div>
+                    <p class="font-black" id="host-name">Business Host</p>
+                    <p class="text-sm text-soft-gray" id="host-company">Company Name</p>
+                    <div class="flex items-center mt-1">
+                        <i class="fas fa-star text-yellow-500 text-xs mr-1"></i>
+                        <span class="text-xs text-soft-gray" id="host-rating">5.0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Preview -->
+            <div class="mt-4 grid grid-cols-2 gap-2">
+                <div class="text-center">
+                    <div class="text-accent-gold font-black" id="sidebar-active">0</div>
+                    <div class="text-xs text-soft-gray">Active</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-accent-gold font-black" id="sidebar-total">0</div>
+                    <div class="text-xs text-soft-gray">Total</div>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#" onclick="showDashboardSection('overview')" class="flex items-center p-3 rounded-xl text-soft-gray hover:bg-accent-gold/10 hover:text-accent-gold transition">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        Overview
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showDashboardSection('projects')" class="flex items-center p-3 rounded-xl text-soft-gray hover:bg-accent-gold/10 hover:text-accent-gold transition">
+                        <i class="fas fa-code mr-3"></i>
+                        My Projects
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showDashboardSection('applications')" class="flex items-center p-3 rounded-xl text-soft-gray hover:bg-accent-gold/10 hover:text-accent-gold transition">
+                        <i class="fas fa-users mr-3"></i>
+                        Applications
+                        <span id="applications-badge" class="ml-auto bg-accent-gold/20 text-accent-gold text-xs px-2 py-1 rounded-full">0</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showDashboardSection('developers')" class="flex items-center p-3 rounded-xl text-soft-gray hover:bg-accent-gold/10 hover:text-accent-gold transition">
+                        <i class="fas fa-user-cog mr-3"></i>
+                        Find Developers
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showDashboardSection('spending')" class="flex items-center p-3 rounded-xl text-soft-gray hover:bg-accent-gold/10 hover:text-accent-gold transition">
+                        <i class="fas fa-chart-line mr-3"></i>
+                        Spending
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showDashboardSection('profile')" class="flex items-center p-3 rounded-xl text-soft-gray hover:bg-accent-gold/10 hover:text-accent-gold transition">
+                        <i class="fas fa-user mr-3"></i>
+                        Profile
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-accent-gold/10">
+            <ul class="space-y-2">
+                <li>
+                    <a href="index.html" class="flex items-center p-3 rounded-xl text-soft-gray hover:bg-accent-gold/10 hover:text-accent-gold transition">
+                        <i class="fas fa-home mr-3"></i>
+                        Home
+                    </a>
+                </li>
+                <li>
+                    <button onclick="logout()" class="w-full flex items-center p-3 rounded-xl text-soft-gray hover:bg-red-500/10 hover:text-red-500 transition">
+                        <i class="fas fa-sign-out-alt mr-3"></i>
+                        Logout
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="md:ml-72 p-4 md:p-8 min-h-screen">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-black" id="page-title">Host Overview</h1>
+                    <p class="text-soft-gray mt-2" id="page-subtitle">Manage your projects and find top developer talent</p>
+                </div>
+                <div class="mt-4 md:mt-0 flex items-center space-x-4">
+                    <button onclick="openCreateProjectModal()" class="px-4 py-2 rounded-xl btn-primary text-sm">
+                        <i class="fas fa-plus mr-2"></i> Post New Project
+                    </button>
+                    <button onclick="refreshData()" class="px-4 py-2 rounded-xl btn-outline text-sm">
+                        <i class="fas fa-sync-alt mr-2"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Overview Section -->
+        <div id="dashboard-overview" class="dashboard-section">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="stat-card glass-effect p-6 rounded-xl">
+                    <div class="text-2xl font-black text-accent-gold" id="stat-total-spent">$0</div>
+                    <div class="text-sm text-soft-gray">Total Spent</div>
+                </div>
+                <div class="stat-card glass-effect p-6 rounded-xl">
+                    <div class="text-2xl font-black text-accent-gold" id="stat-active-projects">0</div>
+                    <div class="text-sm text-soft-gray">Active Projects</div>
+                </div>
+                <div class="stat-card glass-effect p-6 rounded-xl">
+                    <div class="text-2xl font-black text-accent-gold" id="stat-completed-projects">0</div>
+                    <div class="text-sm text-soft-gray">Completed</div>
+                </div>
+                <div class="stat-card glass-effect p-6 rounded-xl">
+                    <div class="text-2xl font-black text-accent-gold" id="stat-open-applications">0</div>
+                    <div class="text-sm text-soft-gray">Applications</div>
+                </div>
+            </div>
+            
+            <!-- Charts and Activity -->
+            <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                <div class="glass-effect p-6 rounded-2xl">
+                    <h3 class="text-lg font-black mb-6">Spending Overview</h3>
+                    <div style="height: 300px;">
+                        <canvas id="spending-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="glass-effect p-6 rounded-2xl">
+                    <h3 class="text-lg font-black mb-6">Recent Activity</h3>
+                    <div class="space-y-4" id="recent-activity">
+                        <div class="text-center text-soft-gray py-12">No recent activity</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Active Projects Preview -->
+            <div class="glass-effect p-6 rounded-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-black">Active Projects</h3>
+                    <button onclick="showDashboardSection('projects')" class="text-accent-gold text-sm hover:underline">View All</button>
+                </div>
+                <div id="active-projects-preview" class="space-y-4">
+                    <div class="text-center text-soft-gray py-12">No active projects</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- My Projects Section -->
+        <div id="dashboard-projects" class="dashboard-section hidden">
+            <div class="glass-effect p-6 rounded-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-black">All Projects</h3>
+                    <select id="project-filter" class="px-4 py-2 rounded-xl form-input text-sm" onchange="loadHostProjects()">
+                        <option value="all">All Projects</option>
+                        <option value="open">Open</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <div id="projects-list" class="space-y-4">
+                    <!-- Projects will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Applications Section -->
+        <div id="dashboard-applications" class="dashboard-section hidden">
+            <div class="glass-effect p-6 rounded-2xl">
+                <h3 class="text-lg font-black mb-6">Pending Applications</h3>
+                <div id="all-applications-list" class="space-y-4">
+                    <!-- All applications will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Find Developers Section -->
+        <div id="dashboard-developers" class="dashboard-section hidden">
+            <div class="glass-effect p-6 rounded-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-black">Available Developers</h3>
+                    <div class="flex space-x-2">
+                        <input type="text" id="developer-search" placeholder="Search skills..." class="px-4 py-2 rounded-xl form-input text-sm">
+                        <button onclick="searchDevelopers()" class="btn-outline px-4 py-2 rounded-xl text-sm">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="developers-list" class="space-y-4">
+                    <!-- Developers will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Spending Section -->
+        <div id="dashboard-spending" class="dashboard-section hidden">
+            <div class="glass-effect p-6 rounded-2xl">
+                <h3 class="text-lg font-black mb-6">Spending Analytics</h3>
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="glass-gold p-6 rounded-xl text-center">
+                        <div class="text-3xl font-black text-accent-gold" id="spending-total">$0</div>
+                        <div class="text-sm text-soft-gray">Total Spent</div>
+                    </div>
+                    <div class="glass-gold p-6 rounded-xl text-center">
+                        <div class="text-3xl font-black text-accent-gold" id="spending-this-month">$0</div>
+                        <div class="text-sm text-soft-gray">This Month</div>
+                    </div>
+                    <div class="glass-gold p-6 rounded-xl text-center">
+                        <div class="text-3xl font-black text-accent-gold" id="spending-average">$0</div>
+                        <div class="text-sm text-soft-gray">Avg per Project</div>
+                    </div>
+                </div>
+                <div style="height: 300px;">
+                    <canvas id="spending-history-chart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Section -->
+        <div id="dashboard-profile" class="dashboard-section hidden">
+            <div class="glass-effect p-6 rounded-2xl">
+                <h3 class="text-lg font-black mb-6">Profile Settings</h3>
+                
+                <form id="profile-form" class="max-w-2xl space-y-6">
+                    <div>
+                        <label class="block text-soft-gray text-sm mb-2">Company Name</label>
+                        <input type="text" id="profile-company" class="w-full px-4 py-3 rounded-xl form-input">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-soft-gray text-sm mb-2">Contact Name</label>
+                        <input type="text" id="profile-name" class="w-full px-4 py-3 rounded-xl form-input">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-soft-gray text-sm mb-2">Email</label>
+                        <input type="email" id="profile-email" class="w-full px-4 py-3 rounded-xl form-input" readonly>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-soft-gray text-sm mb-2">Company Size</label>
+                        <select id="profile-size" class="w-full px-4 py-3 rounded-xl form-input">
+                            <option value="1-10">1-10 employees</option>
+                            <option value="11-50">11-50 employees</option>
+                            <option value="51-200">51-200 employees</option>
+                            <option value="201-500">201-500 employees</option>
+                            <option value="500+">500+ employees</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-soft-gray text-sm mb-2">Industry</label>
+                        <input type="text" id="profile-industry" class="w-full px-4 py-3 rounded-xl form-input" placeholder="e.g., Technology, Finance, Healthcare">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-soft-gray text-sm mb-2">Bio / Company Description</label>
+                        <textarea id="profile-bio" rows="4" class="w-full px-4 py-3 rounded-xl form-input" placeholder="Tell developers about your company..."></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-soft-gray text-sm mb-2">Website</label>
+                        <input type="url" id="profile-website" class="w-full px-4 py-3 rounded-xl form-input" placeholder="https://yourcompany.com">
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="submit" class="btn-primary px-8 py-3 rounded-xl">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== FIREBASE CONFIGURATION ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1Ps2vP8ilQNPp9zeaxP9sGBglGVKBSPM",
+            authDomain: "codenprofit-17152.firebaseapp.com",
+            projectId: "codenprofit-17152",
+            storageBucket: "codenprofit-17152.firebasestorage.app",
+            messagingSenderId: "340619486766",
+            appId: "1:340619486766:web:4600dd0ce05467c46ba1bf",
+            measurementId: "G-0KMHJ2Z0PP"
+        };
+
+        // ==================== GLOBAL VARIABLES ====================
+        let currentUser = null;
+        let userData = null;
+        let isDemoMode = false;
+        let isOnline = true;
+        let firebaseInitialized = false;
+        let db, auth, storage, analytics;
+        
+        let spendingChart = null;
+        let spendingHistoryChart = null;
+        let projectSkills = [];
+
+        // ==================== INITIALIZE FIREBASE ====================
+        try {
+            // Initialize Firebase
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            
+            auth = firebase.auth();
+            db = firebase.firestore();
+            storage = firebase.storage();
+            
+            if (typeof firebase.analytics !== 'undefined') {
+                analytics = firebase.analytics();
+            }
+            
+            // Enable offline persistence
+            db.enablePersistence({ synchronizeTabs: true })
+                .catch(err => {
+                    if (err.code === 'failed-precondition') {
+                        console.warn('Multiple tabs open, persistence enabled in single tab only');
+                    } else if (err.code === 'unimplemented') {
+                        console.warn('Browser doesn\'t support persistence');
+                    }
+                });
+            
+            firebaseInitialized = true;
+            console.log('✅ Firebase initialized successfully with project:', firebaseConfig.projectId);
+            document.getElementById('connection-status').innerHTML = `
+                <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                <span class="text-green-400">Connected to ${firebaseConfig.projectId}</span>
+            `;
+            
+        } catch (error) {
+            console.error('❌ Firebase initialization error:', error);
+            firebaseInitialized = false;
+            isDemoMode = true;
+            document.getElementById('connection-status').innerHTML = `
+                <span class="w-2 h-2 rounded-full bg-yellow-500 mr-2"></span>
+                <span class="text-yellow-400">Demo Mode Active</span>
+            `;
+        }
+
+        // ==================== FIREBASE SERVICE OBJECT ====================
+        const FirebaseService = {
+            isInitialized: () => firebaseInitialized,
+            getAuth: () => auth,
+            getDb: () => db,
+            getStorage: () => storage,
+            getAnalytics: () => analytics,
+            
+            // Auth Methods
+            signUp: async (email, password, userData) => {
+                try {
+                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
+                    
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    
+                    await user.updateProfile({ displayName: userData.displayName });
+                    
+                    // Save to Firestore
+                    await db.collection('hosts').doc(user.uid).set({
+                        ...userData,
+                        uid: user.uid,
+                        email: user.email,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        totalSpent: 0,
+                        activeProjects: 0,
+                        completedProjects: 0,
+                        avgRating: 5.0
+                    });
+                    
+                    if (analytics) {
+                        analytics.logEvent('sign_up', { method: 'email', userType: 'host' });
+                    }
+                    
+                    return { success: true, user };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            signIn: async (email, password) => {
+                try {
+                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
+                    
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    
+                    if (analytics) {
+                        analytics.logEvent('login', { method: 'email' });
+                    }
+                    
+                    return { success: true, user: userCredential.user };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            signOut: async () => {
+                try {
+                    if (auth) await auth.signOut();
+                    return { success: true };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            // Get User Data
+            getUserData: async (userId) => {
+                try {
+                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
+                    
+                    const doc = await db.collection('hosts').doc(userId).get();
+                    if (doc.exists) {
+                        return { success: true, data: { id: doc.id, ...doc.data() } };
+                    }
+                    return { success: false, error: 'User not found' };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            // Update User Data
+            updateUserData: async (userId, data) => {
+                try {
+                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
+                    
+                    await db.collection('hosts').doc(userId).set({
+                        ...data,
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
+                    return { success: true };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            // Get Host Projects
+            getHostProjects: async (hostId, status = null) => {
+                try {
+                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
+                    
+                    let query = db.collection('projects').where('hostId', '==', hostId);
+                    
+                    if (status && status !== 'all') {
+                        query = query.where('status', '==', status);
+                    }
+                    
+                    const snapshot = await query.orderBy('createdAt', 'desc').get();
+                    const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    
+                    return { success: true, projects };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            // Create Project
+            createProject: async (projectData) => {
+                try {
+                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
+                    
+                    const project = {
+                        ...projectData,
+                        applications: [],
+                        status: 'open',
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+
+                    const docRef = await db.collection('projects').add(project);
+                    
+                    if (analytics) {
+                        analytics.logEvent('project_created', { projectId: docRef.id });
+                    }
+                    
+                    return { success: true, id: docRef.id };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            // Update Project
+            updateProject: async (projectId, updates) => {
+                try {
+                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
+                    
+                    await db.collection('projects').doc(projectId).update({
+                        ...updates,
+                        updatedAt: new Date().toISOString()
+                    });
+                    
+                    return { success: true };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            // Get Project Applications
+            getProjectApplications: async (projectId) => {
+                try {
+                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
+                    
+                    const snapshot = await db.collection('applications')
+                        .where('projectId', '==', projectId)
+                        .orderBy('appliedAt', 'desc')
+                        .get();
+                    
+                    const applications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    
+                    // Get developer details for each application
+                    for (let app of applications) {
+                        const devDoc = await db.collection('developers').doc(app.developerId).get();
+                        if (devDoc.exists) {
+                            app.developerData = devDoc.data();
+                        }
+                    }
+                    
+                    return { success: true, applications };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            // Get All Applications for Host
+            getAllApplications: async (hostId) => {
+                try {
+                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
+                    
+                    // First get all host projects
+                    const projectsResult = await FirebaseService.getHostProjects(hostId);
+                    if (!projectsResult.success) return { success: false, error: projectsResult.error };
+                    
+                    const projectIds = projectsResult.projects.map(p => p.id);
+                    
+                    if (projectIds.length === 0) return { success: true, applications: [] };
+                    
+                    // Get applications for all projects
+                    const snapshot = await db.collection('applications')
+                        .where('projectId', 'in', projectIds)
+                        .orderBy('appliedAt', 'desc')
+                        .get();
+                    
+                    const applications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    
+                    // Get project and developer details
+                    for (let app of applications) {
+                        const projectDoc = await db.collection('projects').doc(app.projectId).get();
+                        if (projectDoc.exists) {
+                            app.projectData = projectDoc.data();
+                        }
+                        
+                        const devDoc = await db.collection('developers').doc(app.developerId).get();
+                        if (devDoc.exists) {
+                            app.developerData = devDoc.data();
+                        }
+                    }
+                    
+                    return { success: true, applications };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            // Update Application Status
+            updateApplicationStatus: async (applicationId, status) => {
+                try {
+                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
+                    
+                    await db.collection('applications').doc(applicationId).update({
+                        status: status,
+                        updatedAt: new Date().toISOString()
+                    });
+                    
+                    return { success: true };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            // Get Available Developers
+            getAvailableDevelopers: async (skillFilter = null) => {
+                try {
+                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
+                    
+                    let query = db.collection('developers').where('onboardingComplete', '==', true);
+                    
+                    if (skillFilter) {
+                        // Note: This is a simple filter. For production, use array-contains or Algolia
+                        const snapshot = await query.get();
+                        let developers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        
+                        if (skillFilter) {
+                            developers = developers.filter(d => 
+                                d.skills && d.skills.some(s => 
+                                    s.toLowerCase().includes(skillFilter.toLowerCase())
+                                )
+                            );
+                        }
+                        
+                        return { success: true, developers };
+                    }
+                    
+                    const snapshot = await query.limit(20).get();
+                    const developers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    
+                    return { success: true, developers };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            // Assign Developer to Project
+            assignDeveloper: async (projectId, developerId, applicationId) => {
+                try {
+                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
+                    
+                    // Update project
+                    await db.collection('projects').doc(projectId).update({
+                        developerId: developerId,
+                        status: 'in-progress',
+                        updatedAt: new Date().toISOString()
+                    });
+                    
+                    // Update application status
+                    await db.collection('applications').doc(applicationId).update({
+                        status: 'accepted',
+                        updatedAt: new Date().toISOString()
+                    });
+                    
+                    // Reject other applications
+                    const otherApps = await db.collection('applications')
+                        .where('projectId', '==', projectId)
+                        .where('id', '!=', applicationId)
+                        .get();
+                    
+                    const batch = db.batch();
+                    otherApps.docs.forEach(doc => {
+                        batch.update(doc.ref, { status: 'rejected', updatedAt: new Date().toISOString() });
+                    });
+                    await batch.commit();
+                    
+                    return { success: true };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            }
+        };
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check network status
+            window.addEventListener('online', () => {
+                isOnline = true;
+                document.getElementById('offline-indicator').style.display = 'none';
+                updateConnectionStatus();
+            });
+
+            window.addEventListener('offline', () => {
+                isOnline = false;
+                document.getElementById('offline-indicator').style.display = 'block';
+                updateConnectionStatus();
+            });
+
+            // Check authentication
+            checkAuth();
+
+            // Setup event listeners
+            setupEventListeners();
+        });
+
+        // ==================== AUTHENTICATION ====================
+        function checkAuth() {
+            showLoading('Verifying credentials...');
+
+            // Check demo user first
+            const demoUser = localStorage.getItem('codenprofit_host');
+            if (demoUser) {
+                try {
+                    const user = JSON.parse(demoUser);
+                    if (user.userType === 'host') {
+                        currentUser = user;
+                        userData = user;
+                        hideLoading();
+                        initializeDashboard();
+                        return;
+                    }
+                } catch (e) {
+                    localStorage.removeItem('codenprofit_host');
+                }
+            }
+
+            // Check Firebase auth
+            if (firebaseInitialized && auth) {
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        currentUser = user;
+                        
+                        try {
+                            const result = await FirebaseService.getUserData(user.uid);
+                            if (result.success) {
+                                userData = result.data;
+                                hideLoading();
+                                initializeDashboard();
+                            } else {
+                                // New host user
+                                userData = {
+                                    uid: user.uid,
+                                    email: user.email,
+                                    displayName: user.displayName || 'Business Host',
+                                    companyName: 'Your Company',
+                                    totalSpent: 0,
+                                    activeProjects: 0,
+                                    completedProjects: 0,
+                                    avgRating: 5.0
+                                };
+                                hideLoading();
+                                initializeDashboard();
+                                showNotification('Welcome!', 'Complete your profile to get started.', 'info');
+                            }
+                        } catch (error) {
+                            console.error('Auth error:', error);
+                            hideLoading();
+                            showNotification('Error', 'Failed to load user data. Using demo mode.', 'warning');
+                            isDemoMode = true;
+                            loadDemoHost();
+                        }
+                    } else {
+                        // Not logged in - use demo mode
+                        console.log('No user logged in, using demo mode');
+                        isDemoMode = true;
+                        loadDemoHost();
+                    }
+                });
+            } else {
+                // Firebase not initialized, use demo mode
+                console.log('Firebase not initialized, using demo mode');
+                isDemoMode = true;
+                loadDemoHost();
+            }
+        }
+
+        function loadDemoHost() {
+            const demoHost = {
+                uid: 'demo_host_' + Date.now(),
+                email: 'demo@company.com',
+                displayName: 'Demo Host',
+                companyName: 'Demo Company Inc.',
+                companySize: '11-50',
+                industry: 'Technology',
+                bio: 'Demo host account for testing',
+                website: 'https://democompany.com',
+                totalSpent: 45000,
+                activeProjects: 3,
+                completedProjects: 8,
+                avgRating: 4.7
+            };
+            
+            currentUser = demoHost;
+            userData = demoHost;
+            hideLoading();
+            initializeDashboard();
+            showNotification('Demo Mode', 'You are in demo mode. Sign up to post real projects.', 'info');
+        }
+
+        // ==================== DASHBOARD INITIALIZATION ====================
+        function initializeDashboard() {
+            updateUI();
+            initializeCharts();
+            loadHostProjects();
+            loadApplications();
+            loadDevelopers();
+            loadRecentActivity();
+            showDashboardSection('overview');
+        }
+
+        function updateUI() {
+            if (userData) {
+                const name = userData.displayName || userData.email?.split('@')[0] || 'Host';
+                const company = userData.companyName || 'Company Name';
+                const initials = company.split(' ').map(n => n[0]).join('').toUpperCase() || 'H';
+
+                document.getElementById('host-initials').textContent = initials.substring(0, 2);
+                document.getElementById('host-name').textContent = name;
+                document.getElementById('host-company').textContent = company;
+                document.getElementById('host-rating').textContent = userData.avgRating?.toFixed(1) || '5.0';
+
+                // Update stats
+                document.getElementById('stat-total-spent').textContent = '$' + (userData.totalSpent || 0).toLocaleString();
+                document.getElementById('stat-active-projects').textContent = userData.activeProjects || 0;
+                document.getElementById('stat-completed-projects').textContent = userData.completedProjects || 0;
+
+                document.getElementById('sidebar-active').textContent = userData.activeProjects || 0;
+                document.getElementById('sidebar-total').textContent = (userData.activeProjects || 0) + (userData.completedProjects || 0);
+
+                document.getElementById('spending-total').textContent = '$' + (userData.totalSpent || 0).toLocaleString();
+                document.getElementById('spending-this-month').textContent = '$' + ((userData.totalSpent || 0) * 0.2).toFixed(0).toLocaleString();
+                document.getElementById('spending-average').textContent = '$' + (userData.completedProjects ? Math.round(userData.totalSpent / userData.completedProjects) : 0).toLocaleString();
+
+                // Profile form
+                document.getElementById('profile-company').value = userData.companyName || '';
+                document.getElementById('profile-name').value = userData.displayName || '';
+                document.getElementById('profile-email').value = userData.email || '';
+                document.getElementById('profile-size').value = userData.companySize || '1-10';
+                document.getElementById('profile-industry').value = userData.industry || '';
+                document.getElementById('profile-bio').value = userData.bio || '';
+                document.getElementById('profile-website').value = userData.website || '';
+            }
+        }
+
+        function initializeCharts() {
+            // Spending Chart
+            const spendingCtx = document.getElementById('spending-chart')?.getContext('2d');
+            if (spendingCtx) {
+                if (spendingChart) spendingChart.destroy();
+
+                spendingChart = new Chart(spendingCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                        datasets: [{
+                            label: 'Spending',
+                            data: [5000, 8000, 12000, 15000, 18000, 22000, userData?.totalSpent || 45000],
+                            borderColor: '#FFD700',
+                            backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#A0A0B0' } }
+                        },
+                        scales: {
+                            x: { grid: { color: 'rgba(160, 160, 176, 0.1)' }, ticks: { color: '#A0A0B0' } },
+                            y: { grid: { color: 'rgba(160, 160, 176, 0.1)' }, ticks: { color: '#A0A0B0' } }
+                        }
+                    }
+                });
+            }
+
+            // Spending History Chart
+            const historyCtx = document.getElementById('spending-history-chart')?.getContext('2d');
+            if (historyCtx) {
+                if (spendingHistoryChart) spendingHistoryChart.destroy();
+
+                spendingHistoryChart = new Chart(historyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        datasets: [{
+                            label: 'Spending',
+                            data: [8500, 12000, 9500, userData?.totalSpent ? userData.totalSpent - 30000 : 15000],
+                            backgroundColor: '#FFD700',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#A0A0B0' } }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: '#A0A0B0' } },
+                            y: { grid: { color: 'rgba(160, 160, 176, 0.1)' }, ticks: { color: '#A0A0B0' } }
+                        }
+                    }
+                });
+            }
+        }
+
+        // ==================== PROJECT MANAGEMENT ====================
+        async function loadHostProjects() {
+            const filter = document.getElementById('project-filter')?.value || 'all';
+            const container = document.getElementById('projects-list');
+            const previewContainer = document.getElementById('active-projects-preview');
+
+            if (!container) return;
+
+            showLoading('Loading projects...');
+
+            try {
+                let projects = [];
+
+                if (!isDemoMode && firebaseInitialized && currentUser?.uid) {
+                    const result = await FirebaseService.getHostProjects(currentUser.uid, filter);
+                    if (result.success) {
+                        projects = result.projects;
+                    }
+                }
+
+                // Demo projects if none
+                if (projects.length === 0) {
+                    projects = [
+                        {
+                            id: 'demo1',
+                            title: 'E-commerce Platform Development',
+                            description: 'Build a modern e-commerce platform with React and Node.js',
+                            budget: '$5,000 - $8,000',
+                            timeline: '6-8 weeks',
+                            skills: ['React', 'Node.js', 'MongoDB'],
+                            status: 'open',
+                            applications: ['dev1', 'dev2'],
+                            createdAt: '2024-01-15'
+                        },
+                        {
+                            id: 'demo2',
+                            title: 'Mobile App for Fitness Tracking',
+                            description: 'Create a cross-platform mobile app for fitness tracking',
+                            budget: '$8,000 - $12,000',
+                            timeline: '8-10 weeks',
+                            skills: ['React Native', 'Firebase', 'Redux'],
+                            status: 'in-progress',
+                            developerId: 'dev_demo1',
+                            applications: ['dev3'],
+                            createdAt: '2024-01-10'
+                        },
+                        {
+                            id: 'demo3',
+                            title: 'CRM Integration Project',
+                            description: 'Integrate CRM with existing business tools',
+                            budget: '$4,000 - $6,000',
+                            timeline: '4-6 weeks',
+                            skills: ['Node.js', 'PostgreSQL', 'REST API'],
+                            status: 'completed',
+                            developerId: 'dev_demo2',
+                            applications: [],
+                            createdAt: '2023-12-01',
+                            completedAt: '2024-01-20'
+                        }
+                    ];
+
+                    // Filter demo projects
+                    if (filter !== 'all') {
+                        projects = projects.filter(p => p.status === filter);
+                    }
+                }
+
+                // Update preview
+                if (previewContainer) {
+                    const activeProjects = projects.filter(p => p.status === 'in-progress' || p.status === 'open').slice(0, 3);
+                    if (activeProjects.length === 0) {
+                        previewContainer.innerHTML = '<div class="text-center text-soft-gray py-8">No active projects</div>';
+                    } else {
+                        previewContainer.innerHTML = activeProjects.map(p => `
+                            <div class="project-card glass-effect p-4 rounded-xl">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-black">${p.title}</h4>
+                                    <span class="status-pill ${p.status === 'open' ? 'status-open' : 'status-in-progress'}">${p.status}</span>
+                                </div>
+                                <p class="text-sm text-soft-gray mb-2">${p.budget} • ${p.timeline}</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-soft-gray">${p.applications?.length || 0} applications</span>
+                                    <button onclick="viewProject('${p.id}')" class="text-accent-gold text-sm hover:underline">View</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+
+                // Update main list
+                if (projects.length === 0) {
+                    container.innerHTML = '<div class="text-center text-soft-gray py-12">No projects found. Click "Post New Project" to get started!</div>';
+                } else {
+                    container.innerHTML = projects.map(p => `
+                        <div class="project-card glass-effect p-6 rounded-xl">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h4 class="font-black text-lg">${p.title}</h4>
+                                    <p class="text-sm text-soft-gray mt-1">Posted: ${new Date(p.createdAt).toLocaleDateString()}</p>
+                                </div>
+                                <span class="status-pill status-${p.status === 'open' ? 'open' : p.status === 'in-progress' ? 'in-progress' : 'completed'}">${p.status}</span>
+                            </div>
+                            <p class="text-sm text-soft-gray mb-4">${p.description}</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                ${(p.skills || []).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <span class="text-accent-gold font-black">${p.budget}</span>
+                                    <span class="text-sm text-soft-gray ml-2">${p.timeline}</span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    ${p.status === 'open' ? `
+                                        <button onclick="viewApplications('${p.id}')" class="btn-info px-4 py-2 rounded-lg text-sm">
+                                            <i class="fas fa-users mr-1"></i> ${p.applications?.length || 0} Apps
+                                        </button>
+                                    ` : p.status === 'in-progress' ? `
+                                        <button onclick="markProjectCompleted('${p.id}')" class="btn-success px-4 py-2 rounded-lg text-sm">
+                                            <i class="fas fa-check mr-1"></i> Mark Complete
+                                        </button>
+                                    ` : ''}
+                                    <button onclick="viewProjectDetails('${p.id}')" class="btn-outline px-4 py-2 rounded-lg text-sm">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                container.innerHTML = '<div class="text-center text-soft-gray py-12">Failed to load projects</div>';
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // ==================== APPLICATIONS MANAGEMENT ====================
+        async function loadApplications() {
+            const container = document.getElementById('all-applications-list');
+            const badge = document.getElementById('applications-badge');
+            
+            if (!container) return;
+
+            try {
+                let applications = [];
+                let pendingCount = 0;
+
+                if (!isDemoMode && firebaseInitialized && currentUser?.uid) {
+                    const result = await FirebaseService.getAllApplications(currentUser.uid);
+                    if (result.success) {
+                        applications = result.applications;
+                        pendingCount = applications.filter(a => a.status === 'pending').length;
+                    }
+                }
+
+                // Demo applications if none
+                if (applications.length === 0) {
+                    applications = [
+                        {
+                            id: 'app1',
+                            projectId: 'demo1',
+                            projectData: { title: 'E-commerce Platform Development' },
+                            developerId: 'dev1',
+                            developerData: {
+                                displayName: 'John Smith',
+                                role: 'full-stack',
+                                skills: ['React', 'Node.js', 'MongoDB'],
+                                avgRating: 4.9,
+                                hourlyRate: 45
+                            },
+                            status: 'pending',
+                            appliedAt: '2024-01-20T10:30:00Z'
+                        },
+                        {
+                            id: 'app2',
+                            projectId: 'demo1',
+                            projectData: { title: 'E-commerce Platform Development' },
+                            developerId: 'dev2',
+                            developerData: {
+                                displayName: 'Sarah Johnson',
+                                role: 'full-stack',
+                                skills: ['React', 'Python', 'PostgreSQL'],
+                                avgRating: 4.8,
+                                hourlyRate: 50
+                            },
+                            status: 'pending',
+                            appliedAt: '2024-01-19T15:45:00Z'
+                        },
+                        {
+                            id: 'app3',
+                            projectId: 'demo2',
+                            projectData: { title: 'Mobile App for Fitness Tracking' },
+                            developerId: 'dev3',
+                            developerData: {
+                                displayName: 'Mike Chen',
+                                role: 'mobile',
+                                skills: ['React Native', 'Firebase', 'Redux'],
+                                avgRating: 4.7,
+                                hourlyRate: 55
+                            },
+                            status: 'pending',
+                            appliedAt: '2024-01-18T09:15:00Z'
+                        }
+                    ];
+                    pendingCount = 3;
+                }
+
+                // Update badge
+                if (badge) {
+                    badge.textContent = pendingCount;
+                    badge.style.display = pendingCount > 0 ? 'inline-block' : 'none';
+                }
+                document.getElementById('stat-open-applications').textContent = pendingCount;
+
+                if (applications.length === 0) {
+                    container.innerHTML = '<div class="text-center text-soft-gray py-12">No applications yet</div>';
+                } else {
+                    container.innerHTML = applications.map(app => `
+                        <div class="applicant-card glass-effect p-6 rounded-xl">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h4 class="font-black">${app.developerData?.displayName || 'Developer'}</h4>
+                                    <p class="text-sm text-soft-gray">Applied to: ${app.projectData?.title || 'Project'}</p>
+                                </div>
+                                <span class="status-pill ${app.status === 'pending' ? 'status-pending' : app.status === 'accepted' ? 'status-in-progress' : 'status-cancelled'}">${app.status}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <span class="text-xs text-soft-gray">Role</span>
+                                    <p class="text-sm">${app.developerData?.role || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-soft-gray">Rate</span>
+                                    <p class="text-sm">$${app.developerData?.hourlyRate || '0'}/hr</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-soft-gray">Rating</span>
+                                    <p class="text-sm"><i class="fas fa-star text-yellow-500 mr-1"></i>${app.developerData?.avgRating || '5.0'}</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-soft-gray">Applied</span>
+                                    <p class="text-sm">${new Date(app.appliedAt).toLocaleDateString()}</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-1 mb-4">
+                                ${(app.developerData?.skills || []).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                            </div>
+                            ${app.status === 'pending' ? `
+                                <div class="flex justify-end space-x-2">
+                                    <button onclick="handleApplication('${app.id}', '${app.projectId}', '${app.developerId}', 'accept')" class="btn-success px-4 py-2 rounded-lg text-sm">
+                                        <i class="fas fa-check mr-1"></i> Accept
+                                    </button>
+                                    <button onclick="handleApplication('${app.id}', null, null, 'reject')" class="btn-danger px-4 py-2 rounded-lg text-sm">
+                                        <i class="fas fa-times mr-1"></i> Reject
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading applications:', error);
+                container.innerHTML = '<div class="text-center text-soft-gray py-12">Failed to load applications</div>';
+            }
+        }
+
+        // ==================== DEVELOPER SEARCH ====================
+        async function loadDevelopers() {
+            const container = document.getElementById('developers-list');
+            if (!container) return;
+
+            try {
+                let developers = [];
+
+                if (!isDemoMode && firebaseInitialized) {
+                    const result = await FirebaseService.getAvailableDevelopers();
+                    if (result.success) {
+                        developers = result.developers;
+                    }
+                }
+
+                // Demo developers if none
+                if (developers.length === 0) {
+                    developers = [
+                        {
+                            id: 'dev1',
+                            displayName: 'John Smith',
+                            role: 'full-stack',
+                            skills: ['React', 'Node.js', 'MongoDB', 'TypeScript'],
+                            avgRating: 4.9,
+                            hourlyRate: 45,
+                            completedProjects: 12,
+                            bio: 'Full-stack developer with 5 years of experience'
+                        },
+                        {
+                            id: 'dev2',
+                            displayName: 'Sarah Johnson',
+                            role: 'frontend',
+                            skills: ['React', 'Vue.js', 'Tailwind', 'UI/UX'],
+                            avgRating: 4.8,
+                            hourlyRate: 40,
+                            completedProjects: 8,
+                            bio: 'Frontend specialist passionate about beautiful UIs'
+                        },
+                        {
+                            id: 'dev3',
+                            displayName: 'Mike Chen',
+                            role: 'mobile',
+                            skills: ['React Native', 'Flutter', 'iOS', 'Android'],
+                            avgRating: 4.7,
+                            hourlyRate: 55,
+                            completedProjects: 15,
+                            bio: 'Mobile developer with 10+ apps in production'
+                        },
+                        {
+                            id: 'dev4',
+                            displayName: 'Emily Brown',
+                            role: 'backend',
+                            skills: ['Python', 'Node.js', 'PostgreSQL', 'AWS'],
+                            avgRating: 5.0,
+                            hourlyRate: 50,
+                            completedProjects: 20,
+                            bio: 'Backend architect specializing in scalable systems'
+                        }
+                    ];
+                }
+
+                if (developers.length === 0) {
+                    container.innerHTML = '<div class="text-center text-soft-gray py-12">No developers found</div>';
+                } else {
+                    container.innerHTML = developers.map(dev => `
+                        <div class="project-card glass-effect p-6 rounded-xl">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 rounded-full gradient-gold flex items-center justify-center">
+                                        <span class="font-black text-primary-dark">${dev.displayName?.split(' ').map(n => n[0]).join('') || 'D'}</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-black">${dev.displayName}</h4>
+                                        <p class="text-sm text-soft-gray capitalize">${dev.role} Developer</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-accent-gold font-black">$${dev.hourlyRate}/hr</div>
+                                    <div class="text-xs text-soft-gray"><i class="fas fa-star text-yellow-500 mr-1"></i>${dev.avgRating} (${dev.completedProjects} projects)</div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-soft-gray mb-4">${dev.bio || 'Experienced developer ready for your project.'}</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                ${(dev.skills || []).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                            </div>
+                            <div class="flex justify-end">
+                                <button onclick="contactDeveloper('${dev.id}')" class="btn-primary px-6 py-2 rounded-lg text-sm">
+                                    <i class="fas fa-envelope mr-2"></i> Contact
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading developers:', error);
+                container.innerHTML = '<div class="text-center text-soft-gray py-12">Failed to load developers</div>';
+            }
+        }
+
+        window.searchDevelopers = function() {
+            const searchTerm = document.getElementById('developer-search').value;
+            loadDevelopers(searchTerm);
+        };
+
+        // ==================== RECENT ACTIVITY ====================
+        function loadRecentActivity() {
+            const container = document.getElementById('recent-activity');
+            if (!container) return;
+
+            const activities = [
+                { type: 'application', message: 'New application from John Smith for E-commerce Platform', time: '2 hours ago' },
+                { type: 'project', message: 'Project "Mobile App" started by Mike Chen', time: '1 day ago' },
+                { type: 'payment', message: 'Payment of $2,500 sent to Sarah Johnson', time: '3 days ago' },
+                { type: 'completion', message: 'Project "CRM Integration" completed', time: '5 days ago' },
+                { type: 'review', message: '5-star review received from Emily Brown', time: '1 week ago' }
+            ];
+
+            container.innerHTML = activities.map(a => `
+                <div class="flex items-start space-x-3 border-b border-white/5 pb-3">
+                    <div class="w-8 h-8 rounded-full bg-accent-gold/10 flex items-center justify-center">
+                        <i class="fas fa-${a.type === 'application' ? 'user-plus' : a.type === 'project' ? 'code' : a.type === 'payment' ? 'dollar-sign' : a.type === 'completion' ? 'check-circle' : 'star'} text-accent-gold text-xs"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <p class="text-sm">${a.message}</p>
+                        <p class="text-xs text-soft-gray mt-1">${a.time}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ==================== PROJECT ACTIONS ====================
+        window.openCreateProjectModal = function() {
+            document.getElementById('create-project-modal').classList.add('active');
+        };
+
+        window.closeCreateProjectModal = function() {
+            document.getElementById('create-project-modal').classList.remove('active');
+            document.getElementById('create-project-form').reset();
+            projectSkills = [];
+            document.getElementById('selected-project-skills').innerHTML = '';
+        };
+
+        // Project skill selection
+        document.querySelectorAll('.skill-option').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const skill = this.dataset.skill;
+                if (!projectSkills.includes(skill)) {
+                    projectSkills.push(skill);
+                    const container = document.getElementById('selected-project-skills');
+                    const tag = document.createElement('span');
+                    tag.className = 'skill-tag';
+                    tag.textContent = skill;
+                    tag.dataset.skill = skill;
+                    container.appendChild(tag);
+                }
+            });
+        });
+
+        window.addProjectSkill = function() {
+            const input = document.getElementById('custom-project-skill');
+            const skill = input.value.trim();
+
+            if (skill && !projectSkills.includes(skill)) {
+                projectSkills.push(skill);
+                const container = document.getElementById('selected-project-skills');
+                const tag = document.createElement('span');
+                tag.className = 'skill-tag';
+                tag.textContent = skill;
+                tag.dataset.skill = skill;
+                container.appendChild(tag);
+                input.value = '';
+            }
+        };
+
+        // Create project form submit
+        document.getElementById('create-project-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const projectData = {
+                title: document.getElementById('project-title').value,
+                description: document.getElementById('project-description').value,
+                budget: document.getElementById('project-budget').value,
+                timeline: document.getElementById('project-timeline').value,
+                skills: projectSkills,
+                hostId: currentUser?.uid || 'demo_host',
+                client: userData?.companyName || 'Demo Company',
+                status: 'open',
+                applications: []
+            };
+
+            showLoading('Posting project...');
+
+            if (isDemoMode) {
+                setTimeout(() => {
+                    hideLoading();
+                    closeCreateProjectModal();
+                    showNotification('Success', 'Project posted successfully! (Demo Mode)', 'success');
+                    loadHostProjects();
+                }, 1000);
+                return;
+            }
+
+            try {
+                const result = await FirebaseService.createProject(projectData);
+                if (result.success) {
+                    showNotification('Success', 'Project posted successfully!', 'success');
+                    closeCreateProjectModal();
+                    loadHostProjects();
+                } else {
+                    showNotification('Error', result.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Error', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        window.viewApplications = async function(projectId) {
+            showLoading('Loading applications...');
+            
+            try {
+                let applications = [];
+
+                if (!isDemoMode && firebaseInitialized) {
+                    const result = await FirebaseService.getProjectApplications(projectId);
+                    if (result.success) {
+                        applications = result.applications;
+                    }
+                }
+
+                // Demo applications
+                if (applications.length === 0) {
+                    applications = [
+                        {
+                            id: 'app1',
+                            developerId: 'dev1',
+                            developerData: {
+                                displayName: 'John Smith',
+                                role: 'full-stack',
+                                skills: ['React', 'Node.js', 'MongoDB'],
+                                avgRating: 4.9,
+                                hourlyRate: 45,
+                                bio: 'Experienced full-stack developer'
+                            },
+                            status: 'pending',
+                            appliedAt: '2024-01-20T10:30:00Z'
+                        },
+                        {
+                            id: 'app2',
+                            developerId: 'dev2',
+                            developerData: {
+                                displayName: 'Sarah Johnson',
+                                role: 'full-stack',
+                                skills: ['React', 'Python', 'PostgreSQL'],
+                                avgRating: 4.8,
+                                hourlyRate: 50,
+                                bio: 'Full-stack developer with AI expertise'
+                            },
+                            status: 'pending',
+                            appliedAt: '2024-01-19T15:45:00Z'
+                        }
+                    ];
+                }
+
+                const modalContent = document.getElementById('applications-list');
+                modalContent.innerHTML = applications.map(app => `
+                    <div class="applicant-card glass-effect p-6 rounded-xl">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="font-black">${app.developerData?.displayName}</h4>
+                                <p class="text-sm text-soft-gray capitalize">${app.developerData?.role} Developer</p>
+                            </div>
+                            <span class="status-pill ${app.status === 'pending' ? 'status-pending' : ''}">${app.status}</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <span class="text-xs text-soft-gray">Rate</span>
+                                <p class="text-sm">$${app.developerData?.hourlyRate}/hr</p>
+                            </div>
+                            <div>
+                                <span class="text-xs text-soft-gray">Rating</span>
+                                <p class="text-sm"><i class="fas fa-star text-yellow-500 mr-1"></i>${app.developerData?.avgRating}</p>
+                            </div>
+                            <div>
+                                <span class="text-xs text-soft-gray">Applied</span>
+                                <p class="text-sm">${new Date(app.appliedAt).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-1 mb-4">
+                            ${(app.developerData?.skills || []).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                        </div>
+                        <p class="text-sm text-soft-gray mb-4">${app.developerData?.bio || ''}</p>
+                        <div class="flex justify-end space-x-2">
+                            <button onclick="handleApplication('${app.id}', '${projectId}', '${app.developerId}', 'accept')" class="btn-success px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-check mr-1"></i> Accept
+                            </button>
+                            <button onclick="handleApplication('${app.id}', null, null, 'reject')" class="btn-danger px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-times mr-1"></i> Reject
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.getElementById('applications-modal-title').textContent = 'Project Applications';
+                document.getElementById('applications-modal').classList.add('active');
+            } catch (error) {
+                showNotification('Error', 'Failed to load applications', 'error');
+            } finally {
+                hideLoading();
+            }
+        };
+
+        window.handleApplication = async function(applicationId, projectId, developerId, action) {
+            showLoading(`${action === 'accept' ? 'Accepting' : 'Rejecting'} application...`);
+
+            if (isDemoMode) {
+                setTimeout(() => {
+                    hideLoading();
+                    showNotification('Success', `Application ${action === 'accept' ? 'accepted' : 'rejected'}! (Demo Mode)`, 'success');
+                    closeApplicationsModal();
+                    loadApplications();
+                    loadHostProjects();
+                }, 1000);
+                return;
+            }
+
+            try {
+                if (action === 'accept') {
+                    const result = await FirebaseService.assignDeveloper(projectId, developerId, applicationId);
+                    if (result.success) {
+                        showNotification('Success', 'Developer assigned successfully!', 'success');
+                        closeApplicationsModal();
+                        loadApplications();
+                        loadHostProjects();
+                    } else {
+                        showNotification('Error', result.error, 'error');
+                    }
+                } else {
+                    const result = await FirebaseService.updateApplicationStatus(applicationId, 'rejected');
+                    if (result.success) {
+                        showNotification('Success', 'Application rejected', 'info');
+                        loadApplications();
+                    } else {
+                        showNotification('Error', result.error, 'error');
+                    }
+                }
+            } catch (error) {
+                showNotification('Error', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        };
+
+        window.markProjectCompleted = async function(projectId) {
+            if (!confirm('Mark this project as completed?')) return;
+
+            showLoading('Updating project...');
+
+            if (isDemoMode) {
+                setTimeout(() => {
+                    hideLoading();
+                    showNotification('Success', 'Project marked as completed! (Demo Mode)', 'success');
+                    loadHostProjects();
+                }, 1000);
+                return;
+            }
+
+            try {
+                const result = await FirebaseService.updateProject(projectId, { status: 'completed' });
+                if (result.success) {
+                    showNotification('Success', 'Project completed!', 'success');
+                    loadHostProjects();
+                } else {
+                    showNotification('Error', result.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Error', error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        };
+
+        window.viewProjectDetails = function(projectId) {
+            showNotification('Info', 'Project details view coming soon!', 'info');
+        };
+
+        window.closeApplicationsModal = function() {
+            document.getElementById('applications-modal').classList.remove('active');
+        };
+
+        window.contactDeveloper = function(developerId) {
+            showNotification('Info', 'Messaging feature coming soon!', 'info');
+        };
+
+        // ==================== DASHBOARD NAVIGATION ====================
+        window.showDashboardSection = function(section) {
+            document.querySelectorAll('.dashboard-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`dashboard-${section}`).classList.remove('hidden');
+
+            const titles = {
+                overview: { title: 'Host Overview', subtitle: 'Manage your projects and find top developer talent' },
+                projects: { title: 'My Projects', subtitle: 'Manage and track all your projects' },
+                applications: { title: 'Applications', subtitle: 'Review and manage developer applications' },
+                developers: { title: 'Find Developers', subtitle: 'Browse available developer talent' },
+                spending: { title: 'Spending Analytics', subtitle: 'Track your project investments' },
+                profile: { title: 'Profile Settings', subtitle: 'Manage your company profile' }
+            };
+
+            document.getElementById('page-title').textContent = titles[section].title;
+            document.getElementById('page-subtitle').textContent = titles[section].subtitle;
+
+            // Load data for specific sections
+            if (section === 'projects') loadHostProjects();
+            if (section === 'applications') loadApplications();
+            if (section === 'developers') loadDevelopers();
+
+            // Close mobile sidebar
+            if (window.innerWidth < 768) {
+                document.querySelector('.sidebar').classList.remove('active');
+            }
+        };
+
+        // ==================== PROFILE ACTIONS ====================
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const updates = {
+                companyName: document.getElementById('profile-company').value,
+                displayName: document.getElementById('profile-name').value,
+                companySize: document.getElementById('profile-size').value,
+                industry: document.getElementById('profile-industry').value,
+                bio: document.getElementById('profile-bio').value,
+                website: document.getElementById('profile-website').value
+            };
+
+            userData = { ...userData, ...updates };
+
+            showLoading('Saving changes...');
+
+            if (!isDemoMode && firebaseInitialized && currentUser?.uid) {
+                await FirebaseService.updateUserData(currentUser.uid, updates);
+                showNotification('Success', 'Profile updated in Firebase!', 'success');
+            } else {
+                localStorage.setItem('codenprofit_host', JSON.stringify(userData));
+                showNotification('Success', 'Profile updated locally!', 'success');
+            }
+
+            setTimeout(() => {
+                hideLoading();
+                updateUI();
+            }, 1000);
+        });
+
+        // ==================== UTILITY FUNCTIONS ====================
+        window.refreshData = function() {
+            showNotification('Info', 'Refreshing data...', 'info');
+            loadHostProjects();
+            loadApplications();
+            loadDevelopers();
+            loadRecentActivity();
+        };
+
+        function updateConnectionStatus() {
+            const statusEl = document.getElementById('connection-status');
+            if (statusEl) {
+                const dot = statusEl.querySelector('.w-2');
+                const text = statusEl.querySelector('span:last-child');
+
+                if (!isDemoMode && firebaseInitialized) {
+                    dot.className = 'w-2 h-2 rounded-full bg-green-500 mr-2';
+                    text.className = 'text-green-400';
+                    text.textContent = `Connected to ${firebaseConfig.projectId}`;
+                } else if (isDemoMode) {
+                    dot.className = 'w-2 h-2 rounded-full bg-yellow-500 mr-2';
+                    text.className = 'text-yellow-400';
+                    text.textContent = 'Demo Mode Active';
+                } else if (!isOnline) {
+                    dot.className = 'w-2 h-2 rounded-full bg-red-500 mr-2';
+                    text.className = 'text-red-400';
+                    text.textContent = 'Offline';
+                }
+            }
+        }
+
+        function setupEventListeners() {
+            // Mobile menu
+            document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+                document.querySelector('.sidebar').classList.toggle('active');
+            });
+
+            // Close sidebar on outside click
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth < 768) {
+                    const sidebar = document.querySelector('.sidebar');
+                    const menuBtn = document.getElementById('mobile-menu-btn');
+                    if (sidebar && menuBtn && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                        sidebar.classList.remove('active');
+                    }
+                }
+            });
+
+            // Filter change
+            document.getElementById('project-filter')?.addEventListener('change', loadHostProjects);
+
+            // Close modals on escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeCreateProjectModal();
+                    closeApplicationsModal();
+                }
+            });
+        }
+
+        // ==================== NOTIFICATION SYSTEM ====================
+        function showLoading(message = 'Loading...') {
+            document.getElementById('loading-message').textContent = message;
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+        }
+
+        window.showNotification = function(title, message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notification-icon');
+            const titleEl = document.getElementById('notification-title');
+            const msgEl = document.getElementById('notification-message');
+
+            icon.className = 'w-12 h-12 rounded-xl flex items-center justify-center mr-4';
+
+            switch(type) {
+                case 'success':
+                    icon.className += ' bg-green-500/20';
+                    icon.innerHTML = '<i class="fas fa-check text-green-500 text-xl"></i>';
+                    break;
+                case 'error':
+                    icon.className += ' bg-red-500/20';
+                    icon.innerHTML = '<i class="fas fa-exclamation-circle text-red-500 text-xl"></i>';
+                    break;
+                case 'info':
+                    icon.className += ' bg-blue-500/20';
+                    icon.innerHTML = '<i class="fas fa-info-circle text-blue-500 text-xl"></i>';
+                    break;
+                case 'warning':
+                    icon.className += ' bg-yellow-500/20';
+                    icon.innerHTML = '<i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>';
+                    break;
+            }
+
+            titleEl.textContent = title;
+            msgEl.textContent = message;
+
+            notification.classList.add('show');
+
+            setTimeout(hideNotification, 4000);
+        };
+
+        window.hideNotification = function() {
+            document.getElementById('notification').classList.remove('show');
+        };
+
+        // ==================== LOGOUT ====================
+        window.logout = async function() {
+            showLoading('Disconnecting...');
+
+            if (!isDemoMode && firebaseInitialized) {
+                await FirebaseService.signOut();
+            }
+
+            localStorage.removeItem('codenprofit_host');
+            currentUser = null;
+            userData = null;
+
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
