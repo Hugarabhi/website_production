@@ -1,2154 +1,571 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codenprofit | Developer Command Center</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>codenprofit — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#060612;
+  --surface:rgba(255,255,255,0.04);
+  --border:rgba(255,255,255,0.08);
+  --border-hover:rgba(139,92,246,0.5);
+  --accent:#8b5cf6;
+  --accent2:#06b6d4;
+  --accent3:#f59e0b;
+  --text:#f8fafc;
+  --muted:rgba(248,250,252,0.45);
+  --muted2:rgba(248,250,252,0.2);
+  --danger:#f87171;
+  --success:#34d399;
+  --radius:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  overflow:hidden;
+}
 
-        :root {
-            --primary-dark: #0A0A0F;
-            --surface-charcoal: #1A1A2E;
-            --accent-gold: #FFD700;
-            --secondary-gold: #B8860B;
-            --light-charcoal: #2D2D44;
-            --pure-white: #FFFFFF;
-            --soft-gray: #A0A0B0;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--primary-dark) 0%, #1a1a2e 100%);
-            color: var(--pure-white);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        
-        h1, h2, h3, h4, .font-heading { 
-            font-family: 'Montserrat', sans-serif; 
-        }
+/* ── Background ── */
+.bg-canvas{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(139,92,246,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(6,182,212,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(245,158,11,0.05) 0%, transparent 50%),
+    var(--bg);
+}
+.grid-lines{
+  position:fixed;inset:0;z-index:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
+}
+.orbs{position:fixed;inset:0;z-index:0;overflow:hidden}
+.orb{
+  position:absolute;border-radius:50%;filter:blur(60px);opacity:0.15;
+  animation:float 12s ease-in-out infinite;
+}
+.orb1{width:400px;height:400px;background:var(--accent);top:-100px;left:-100px;animation-delay:0s}
+.orb2{width:300px;height:300px;background:var(--accent2);bottom:-100px;right:-100px;animation-delay:-4s}
+.orb3{width:200px;height:200px;background:var(--accent3);top:50%;left:60%;animation-delay:-8s}
+@keyframes float{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-30px) scale(1.05)}
+}
 
-        .glass-effect {
-            background: rgba(26, 26, 46, 0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 215, 0, 0.1);
-        }
+/* ── Layout ── */
+.auth-split{
+  position:relative;z-index:1;
+  display:flex;width:100%;min-height:100vh;
+}
+.auth-left{
+  flex:1;display:flex;flex-direction:column;justify-content:space-between;
+  padding:48px 56px;
+  border-right:1px solid var(--border);
+  background:rgba(0,0,0,0.2);
+  backdrop-filter:blur(2px);
+}
+.auth-right{
+  width:520px;flex-shrink:0;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:48px;
+  overflow-y:auto;
+}
+@media(max-width:900px){
+  .auth-left{display:none}
+  .auth-right{width:100%;padding:32px 24px}
+}
 
-        .glass-dark {
-            background: rgba(10, 10, 15, 0.9);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 215, 0, 0.1);
-        }
+/* ── Left panel ── */
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:auto}
+.brand-icon{
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+}
+.brand-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:800}
+.brand-name span{color:var(--accent)}
+.hero-block{flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 0}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);
+  color:var(--accent);padding:6px 14px;border-radius:20px;font-size:12px;
+  font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:24px;
+  width:fit-content;
+}
+.hero-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero-h1{
+  font-family:'Syne',sans-serif;font-size:52px;font-weight:800;
+  line-height:1.1;margin-bottom:20px;
+  background:linear-gradient(135deg,#fff 30%,rgba(255,255,255,0.5));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-h1 .accent{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-p{color:var(--muted);font-size:16px;line-height:1.7;max-width:420px;margin-bottom:40px}
+.feature-list{display:flex;flex-direction:column;gap:14px}
+.feature-item{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 18px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;
+}
+.feature-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;
+}
+.fi-purple{background:rgba(139,92,246,0.15)}
+.fi-cyan{background:rgba(6,182,212,0.15)}
+.fi-amber{background:rgba(245,158,11,0.15)}
+.feature-item h5{font-size:13px;font-weight:600;margin-bottom:2px}
+.feature-item p{font-size:12px;color:var(--muted);line-height:1.4}
+.trust-row{display:flex;align-items:center;gap:16px;padding-top:32px}
+.trust-avatars{display:flex}
+.trust-av{
+  width:32px;height:32px;border-radius:50%;border:2px solid var(--bg);
+  margin-left:-8px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;
+}
+.trust-av:first-child{margin-left:0}
+.ta1{background:linear-gradient(135deg,#8b5cf6,#6d28d9)}
+.ta2{background:linear-gradient(135deg,#06b6d4,#0891b2)}
+.ta3{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.ta4{background:linear-gradient(135deg,#34d399,#059669)}
+.trust-text{font-size:13px;color:var(--muted)}
+.trust-text strong{color:var(--text)}
 
-        .glass-gold {
-            background: rgba(255, 215, 0, 0.1);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-
-        .gradient-gold {
-            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--secondary-gold) 100%);
-        }
-
-        .text-accent-gold { color: var(--accent-gold); }
-        .text-soft-gray { color: var(--soft-gray); }
-        .bg-primary-dark { background-color: var(--primary-dark); }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--secondary-gold) 100%);
-            color: var(--primary-dark);
-            font-weight: 700;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.3);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .btn-outline {
-            border: 2px solid var(--accent-gold);
-            color: var(--accent-gold);
-            background: transparent;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-outline:hover {
-            background: rgba(255, 215, 0, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .btn-danger:hover {
-            background: rgba(239, 68, 68, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        .form-input {
-            background: rgba(45, 45, 68, 0.5);
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            color: var(--pure-white);
-            transition: all 0.3s ease;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: var(--accent-gold);
-            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
-        }
-
-        .form-input::placeholder {
-            color: rgba(160, 160, 176, 0.5);
-        }
-        
-        .status-pill {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-        
-        .status-available {
-            background: rgba(255, 215, 0, 0.2);
-            color: var(--accent-gold);
-        }
-        
-        .status-inprogress {
-            background: rgba(59, 130, 246, 0.2);
-            color: #60A5FA;
-        }
-        
-        .status-completed {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-        }
-
-        .status-pending {
-            background: rgba(245, 158, 11, 0.2);
-            color: #f59e0b;
-        }
-        
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-            background: rgba(255, 215, 0, 0.15);
-            color: var(--accent-gold);
-            border: 1px solid rgba(255, 215, 0, 0.25);
-        }
-        
-        .skill-tag {
-            display: inline-block;
-            padding: 4px 10px;
-            background: rgba(255, 215, 0, 0.1);
-            color: var(--accent-gold);
-            border-radius: 15px;
-            font-size: 11px;
-            margin: 2px;
-        }
-
-        .sidebar {
-            width: 280px;
-            transition: all 0.3s ease;
-            border-right: 1px solid rgba(255, 215, 0, 0.1);
-        }
-        
-        .offline-indicator {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: #f59e0b;
-            color: #0A0A0F;
-            text-align: center;
-            padding: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            z-index: 1000;
-            display: none;
-        }
-        
-        .notification {
-            position: fixed;
-            top: 30px;
-            right: 30px;
-            z-index: 9999;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            max-width: 380px;
-        }
-        
-        .notification.show {
-            transform: translateX(0);
-        }
-        
-        .loading-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(10, 10, 15, 0.98);
-            backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            flex-direction: column;
-        }
-        
-        .loading-overlay.hidden {
-            display: none;
-        }
-        
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(255, 215, 0, 0.2);
-            border-radius: 50%;
-            border-top-color: var(--accent-gold);
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .onboarding-step {
-            display: none;
-        }
-
-        .onboarding-step.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .progress-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(160, 160, 176, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .progress-dot.active {
-            background: var(--accent-gold);
-            transform: scale(1.2);
-            box-shadow: 0 0 10px var(--accent-gold);
-        }
-
-        .role-card {
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .role-card:hover {
-            transform: scale(1.05);
-            border-color: var(--accent-gold);
-        }
-
-        .role-card.selected {
-            border: 2px solid var(--accent-gold);
-            background: rgba(255, 215, 0, 0.1);
-        }
-
-        .skill-option {
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .skill-option.selected {
-            background: var(--accent-gold);
-            color: var(--primary-dark);
-        }
-
-        .strike-meter {
-            width: 100%;
-            height: 6px;
-            background: rgba(160, 160, 176, 0.2);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .strike-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-
-        .strike-safe { background: #10b981; }
-        .strike-warning { background: #f59e0b; }
-        .strike-danger { background: #ef4444; }
-
-        .project-card {
-            transition: all 0.3s ease;
-        }
-
-        .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.15);
-        }
-
-        .stat-card {
-            border-left: 4px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            border-left: 4px solid var(--accent-gold);
-            transform: translateX(10px);
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                position: fixed;
-                left: 0;
-                top: 0;
-                height: 100vh;
-                z-index: 40;
-            }
-            
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .notification {
-                top: 20px;
-                right: 20px;
-                left: 20px;
-                max-width: none;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent-gold);
-            border-radius: 10px;
-        }
-    </style>
+/* ── Right panel / Form ── */
+.form-header{margin-bottom:36px}
+.form-header h2{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;margin-bottom:8px}
+.form-header p{color:var(--muted);font-size:14px}
+.tab-switch{
+  display:flex;background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);border-radius:14px;padding:5px;
+  margin-bottom:28px;gap:4px;
+}
+.tab-btn{
+  flex:1;padding:10px 16px;border:none;background:transparent;
+  color:var(--muted);cursor:pointer;border-radius:10px;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;
+  transition:all .25s;
+}
+.tab-btn.active{
+  background:linear-gradient(135deg,var(--accent),rgba(139,92,246,0.8));
+  color:#fff;box-shadow:0 4px 16px rgba(139,92,246,0.3);
+}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+.type-card{
+  padding:16px 14px;border:2px solid var(--border);border-radius:12px;
+  background:var(--surface);cursor:pointer;text-align:center;
+  transition:all .2s;
+}
+.type-card:hover{border-color:rgba(139,92,246,0.4);background:rgba(139,92,246,0.05)}
+.type-card.active{
+  border-color:var(--accent);background:rgba(139,92,246,0.1);
+  box-shadow:0 0 0 1px rgba(139,92,246,0.3);
+}
+.type-card .tc-icon{font-size:26px;margin-bottom:8px}
+.type-card .tc-title{font-size:13px;font-weight:600}
+.type-card .tc-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.form-section{display:none}
+.form-section.active{display:block}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:7px;letter-spacing:0.4px;text-transform:uppercase}
+.field input,.field select,.field textarea{
+  width:100%;padding:12px 16px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--border);border-radius:10px;
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;
+  outline:none;transition:border .2s,background .2s;
+}
+.field input:focus,.field select:focus{
+  border-color:var(--accent);background:rgba(139,92,246,0.05);
+}
+.field select option{background:#1a1a2e;color:#fff}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.password-wrap{position:relative}
+.password-wrap input{padding-right:44px}
+.pw-toggle{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;
+}
+.alert{
+  padding:12px 16px;border-radius:10px;font-size:13px;
+  margin-bottom:16px;display:none;
+}
+.alert-error{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:var(--danger)}
+.alert-success{background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);color:var(--success)}
+.btn-submit{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,var(--accent),#6d28d9);
+  border:none;border-radius:12px;color:#fff;
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;transition:all .25s;
+  box-shadow:0 4px 24px rgba(139,92,246,0.35);
+  position:relative;overflow:hidden;
+}
+.btn-submit::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent,rgba(255,255,255,0.1),transparent);
+  transform:translateX(-100%);transition:transform .4s;
+}
+.btn-submit:hover::after{transform:translateX(100%)}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(139,92,246,0.45)}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.divider{
+  display:flex;align-items:center;gap:12px;margin:18px 0;
+  color:var(--muted2);font-size:12px;
+}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.forgot-link{
+  text-align:right;margin-top:-8px;margin-bottom:14px;
+}
+.forgot-link a{font-size:12px;color:var(--accent);text-decoration:none;cursor:pointer}
+.forgot-link a:hover{text-decoration:underline}
+.spinner{
+  width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;
+  display:inline-block;margin-right:8px;vertical-align:middle;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.strength-bar{height:3px;border-radius:2px;margin-top:6px;background:var(--border);overflow:hidden}
+.strength-fill{height:100%;border-radius:2px;transition:width .3s,background .3s}
+.strength-text{font-size:11px;margin-top:4px;color:var(--muted)}
+</style>
 </head>
 <body>
-    <!-- Offline Indicator -->
-    <div id="offline-indicator" class="offline-indicator">
-        <i class="fas fa-wifi-slash mr-2"></i> Offline Mode - Working with local data
+<div class="bg-canvas"></div>
+<div class="grid-lines"></div>
+<div class="orbs"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div></div>
+
+<div class="auth-split">
+  <!-- LEFT PANEL -->
+  <div class="auth-left">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-name">code<span>n</span>profit</div>
     </div>
-    
-    <!-- Notification -->
-    <div id="notification" class="notification glass-effect rounded-2xl p-6 shadow-2xl">
-        <div class="flex items-start">
-            <div id="notification-icon" class="w-12 h-12 rounded-xl flex items-center justify-center mr-4 bg-yellow-500/20">
-                <i class="fas fa-check text-yellow-500 text-xl"></i>
-            </div>
-            <div class="flex-grow">
-                <p class="font-black text-lg mb-1" id="notification-title">System Message</p>
-                <p class="text-sm text-soft-gray" id="notification-message"></p>
-            </div>
-            <button onclick="hideNotification()" class="text-soft-gray hover:text-accent-gold ml-2">
-                <i class="fas fa-times"></i>
-            </button>
+    <div class="hero-block">
+      <div class="hero-tag">✦ The Dev Marketplace</div>
+      <h1 class="hero-h1">Where <span class="accent">Code</span> Meets <span class="accent">Opportunity</span></h1>
+      <p class="hero-p">Connect top developers with forward-thinking companies. Build faster, earn smarter — codenprofit is where talent meets demand.</p>
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon fi-purple">💻</div>
+          <div>
+            <h5>Elite Developer Network</h5>
+            <p>Vetted developers across all stacks ready to work on your project</p>
+          </div>
         </div>
+        <div class="feature-item">
+          <div class="feature-icon fi-cyan">🚀</div>
+          <div>
+            <h5>Post & Fill Projects Fast</h5>
+            <p>Post a project and receive applications from qualified devs within hours</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon fi-amber">🤝</div>
+          <div>
+            <h5>Direct Hiring</h5>
+            <p>Send direct hire requests to developers whose skills match your needs</p>
+          </div>
+        </div>
+      </div>
     </div>
-    
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay">
-        <div class="loading-spinner"></div>
-        <p class="text-accent-gold text-lg font-bold" id="loading-message">Initializing Developer Console...</p>
+    <div class="trust-row">
+      <div class="trust-avatars">
+        <div class="trust-av ta1">A</div>
+        <div class="trust-av ta2">B</div>
+        <div class="trust-av ta3">C</div>
+        <div class="trust-av ta4">D</div>
+      </div>
+      <div class="trust-text"><strong>500+</strong> developers &amp; companies trust codenprofit</div>
     </div>
-    
-    <!-- Onboarding Overlay -->
-    <div id="onboarding-overlay" class="fixed inset-0 z-[200] hidden items-center justify-center p-6 bg-black/95 backdrop-blur-xl overflow-y-auto">
-        <div class="w-full max-w-4xl">
-            <!-- Progress Indicator -->
-            <div class="flex justify-center mb-12">
-                <div class="flex items-center space-x-4">
-                    <div class="progress-dot active" data-step="1"></div>
-                    <div class="w-12 h-1 bg-soft-gray/20"></div>
-                    <div class="progress-dot" data-step="2"></div>
-                    <div class="w-12 h-1 bg-soft-gray/20"></div>
-                    <div class="progress-dot" data-step="3"></div>
-                    <div class="w-12 h-1 bg-soft-gray/20"></div>
-                    <div class="progress-dot" data-step="4"></div>
-                </div>
-            </div>
-            
-            <!-- Step 1: Welcome -->
-            <div id="onboarding-step-1" class="onboarding-step active">
-                <div class="text-center">
-                    <div class="w-32 h-32 rounded-full gradient-gold flex items-center justify-center mx-auto mb-8">
-                        <span class="font-black text-primary-dark text-5xl">C</span>
-                    </div>
-                    <h1 class="text-5xl font-black mb-4">Welcome to <span class="text-accent-gold">Codenprofit</span></h1>
-                    <p class="text-2xl text-soft-gray mb-8">Turn Your Code into Commercial Capital</p>
-                    <div class="glass-effect rounded-2xl p-8 max-w-2xl mx-auto mb-8">
-                        <p class="text-lg">Join the elite 150+ network of verified developers building real-world commercial projects.</p>
-                    </div>
-                    <button onclick="nextOnboardingStep()" class="btn-primary px-12 py-4 rounded-xl text-lg font-black">
-                        Begin Journey <i class="fas fa-arrow-right ml-2"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Step 2: Role Selection -->
-            <div id="onboarding-step-2" class="onboarding-step">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-black mb-4">Define Your Role</h2>
-                    <p class="text-soft-gray text-lg">Select your primary expertise</p>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    <div class="role-card glass-effect rounded-2xl p-6 text-center" data-role="full-stack">
-                        <div class="w-16 h-16 rounded-full bg-accent-gold/10 flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-layer-group text-accent-gold text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-black mb-2">Full Stack</h3>
-                        <p class="text-sm text-soft-gray">Frontend + Backend</p>
-                    </div>
-                    
-                    <div class="role-card glass-effect rounded-2xl p-6 text-center" data-role="frontend">
-                        <div class="w-16 h-16 rounded-full bg-accent-gold/10 flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-palette text-accent-gold text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-black mb-2">Frontend</h3>
-                        <p class="text-sm text-soft-gray">UI/UX & Client-side</p>
-                    </div>
-                    
-                    <div class="role-card glass-effect rounded-2xl p-6 text-center" data-role="backend">
-                        <div class="w-16 h-16 rounded-full bg-accent-gold/10 flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-server text-accent-gold text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-black mb-2">Backend</h3>
-                        <p class="text-sm text-soft-gray">APIs & Databases</p>
-                    </div>
-                    
-                    <div class="role-card glass-effect rounded-2xl p-6 text-center" data-role="mobile">
-                        <div class="w-16 h-16 rounded-full bg-accent-gold/10 flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-mobile-alt text-accent-gold text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-black mb-2">Mobile</h3>
-                        <p class="text-sm text-soft-gray">iOS & Android</p>
-                    </div>
-                    
-                    <div class="role-card glass-effect rounded-2xl p-6 text-center" data-role="devops">
-                        <div class="w-16 h-16 rounded-full bg-accent-gold/10 flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-cloud text-accent-gold text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-black mb-2">DevOps</h3>
-                        <p class="text-sm text-soft-gray">Infrastructure</p>
-                    </div>
-                    
-                    <div class="role-card glass-effect rounded-2xl p-6 text-center" data-role="ai-ml">
-                        <div class="w-16 h-16 rounded-full bg-accent-gold/10 flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-brain text-accent-gold text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-black mb-2">AI/ML</h3>
-                        <p class="text-sm text-soft-gray">Data Science</p>
-                    </div>
-                </div>
-                
-                <div class="flex justify-between">
-                    <button onclick="prevOnboardingStep()" class="btn-outline px-8 py-3 rounded-xl">Back</button>
-                    <button onclick="nextOnboardingStep()" class="btn-primary px-8 py-3 rounded-xl">Continue</button>
-                </div>
-            </div>
-            
-            <!-- Step 3: Skills -->
-            <div id="onboarding-step-3" class="onboarding-step">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-black mb-4">Your Technical Arsenal</h2>
-                    <p class="text-soft-gray text-lg">Select your skills (minimum 3)</p>
-                </div>
-                
-                <div class="glass-effect rounded-2xl p-8 mb-6">
-                    <div class="flex flex-wrap gap-2 mb-6" id="selected-skills"></div>
-                    
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <button class="skill-option px-4 py-3 rounded-xl glass-dark text-sm" data-skill="JavaScript">JavaScript</button>
-                        <button class="skill-option px-4 py-3 rounded-xl glass-dark text-sm" data-skill="React">React</button>
-                        <button class="skill-option px-4 py-3 rounded-xl glass-dark text-sm" data-skill="Node.js">Node.js</button>
-                        <button class="skill-option px-4 py-3 rounded-xl glass-dark text-sm" data-skill="Python">Python</button>
-                        <button class="skill-option px-4 py-3 rounded-xl glass-dark text-sm" data-skill="TypeScript">TypeScript</button>
-                        <button class="skill-option px-4 py-3 rounded-xl glass-dark text-sm" data-skill="MongoDB">MongoDB</button>
-                        <button class="skill-option px-4 py-3 rounded-xl glass-dark text-sm" data-skill="PostgreSQL">PostgreSQL</button>
-                        <button class="skill-option px-4 py-3 rounded-xl glass-dark text-sm" data-skill="GraphQL">GraphQL</button>
-                        <button class="skill-option px-4 py-3 rounded-xl glass-dark text-sm" data-skill="Docker">Docker</button>
-                        <button class="skill-option px-4 py-3 rounded-xl glass-dark text-sm" data-skill="AWS">AWS</button>
-                        <button class="skill-option px-4 py-3 rounded-xl glass-dark text-sm" data-skill="Firebase">Firebase</button>
-                        <button class="skill-option px-4 py-3 rounded-xl glass-dark text-sm" data-skill="Vue.js">Vue.js</button>
-                    </div>
-                    
-                    <div class="mt-6">
-                        <label class="block text-soft-gray text-sm mb-2">Add Custom Skill</label>
-                        <div class="flex">
-                            <input type="text" id="custom-skill" class="flex-grow px-4 py-3 rounded-l-xl form-input" placeholder="e.g. TensorFlow">
-                            <button onclick="addCustomSkill()" class="px-6 py-3 rounded-r-xl btn-primary">Add</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="flex justify-between">
-                    <button onclick="prevOnboardingStep()" class="btn-outline px-8 py-3 rounded-xl">Back</button>
-                    <button onclick="nextOnboardingStep()" class="btn-primary px-8 py-3 rounded-xl" id="continue-step3" disabled>Continue</button>
-                </div>
-            </div>
-            
-            <!-- Step 4: Complete -->
-            <div id="onboarding-step-4" class="onboarding-step">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-black mb-4">Complete Your Profile</h2>
-                    <p class="text-soft-gray text-lg">Finalize your elite developer profile</p>
-                </div>
-                
-                <div class="glass-effect rounded-2xl p-8 mb-6">
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-soft-gray text-sm mb-2">Portfolio / GitHub URL</label>
-                            <input type="url" id="portfolio-url" class="w-full px-4 py-3 rounded-xl form-input" placeholder="https://github.com/username">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-soft-gray text-sm mb-2">Bio / Introduction</label>
-                            <textarea id="developer-bio" rows="4" class="w-full px-4 py-3 rounded-xl form-input" placeholder="Tell us about your experience and what makes you part of the top 5%..."></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-soft-gray text-sm mb-2">Hourly Rate (USD)</label>
-                            <input type="number" id="hourly-rate" class="w-full px-4 py-3 rounded-xl form-input" placeholder="e.g. 45" min="10" max="200">
-                        </div>
-                        
-                        <div class="glass-gold p-6 rounded-xl">
-                            <h4 class="font-black mb-3 text-accent-gold">Elite Network Benefits</h4>
-                            <ul class="space-y-2 text-sm">
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-accent-gold mr-2 mt-1"></i>
-                                    <span>Access to 50+ real-world commercial projects</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-accent-gold mr-2 mt-1"></i>
-                                    <span>Direct client communication (no agency markup)</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-accent-gold mr-2 mt-1"></i>
-                                    <span>24/7 HR Lead support and community access</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-accent-gold mr-2 mt-1"></i>
-                                    <span>Badge system to showcase your expertise</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="flex justify-between">
-                    <button onclick="prevOnboardingStep()" class="btn-outline px-8 py-3 rounded-xl">Back</button>
-                    <button onclick="completeOnboarding()" class="btn-primary px-8 py-3 rounded-xl">Activate Profile</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Mobile Menu Button -->
-    <button id="mobile-menu-btn" class="md:hidden fixed top-20 left-4 z-30 w-10 h-10 rounded-xl glass-effect flex items-center justify-center">
-        <i class="fas fa-bars text-accent-gold"></i>
-    </button>
-    
-    <!-- Sidebar -->
-    <div class="sidebar glass-dark fixed left-0 top-0 h-screen overflow-y-auto z-20">
-        <div class="p-6 border-b border-accent-gold/10">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center">
-                    <span class="font-black text-primary-dark text-lg">C</span>
-                </div>
-                <div>
-                    <span class="text-xl font-black text-accent-gold tracking-tighter">CODENPROFIT</span>
-                    <p class="text-[8px] text-soft-gray uppercase tracking-widest mt-1">Developer Console</p>
-                </div>
-            </div>
-            <div class="mt-4 flex items-center text-xs" id="connection-status">
-                <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
-                <span class="text-green-400">Connected to codenprofit-17152</span>
-            </div>
-        </div>
-        
-        <div class="p-6 border-b border-accent-gold/10">
-            <div class="flex items-center space-x-4">
-                <div class="w-14 h-14 rounded-xl gradient-gold flex items-center justify-center">
-                    <span class="font-black text-primary-dark text-xl" id="user-initials">D</span>
-                </div>
-                <div>
-                    <p class="font-black" id="user-name">Developer</p>
-                    <p class="text-sm text-soft-gray" id="user-role">Full Stack</p>
-                    <div class="flex items-center mt-1">
-                        <i class="fas fa-star text-yellow-500 text-xs mr-1"></i>
-                        <span class="text-xs text-soft-gray" id="user-rating">5.0</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Strike Meter -->
-            <div class="mt-4">
-                <div class="flex justify-between text-xs text-soft-gray mb-1">
-                    <span>Professional Score</span>
-                    <span id="strike-percentage">100%</span>
-                </div>
-                <div class="strike-meter">
-                    <div id="strike-fill" class="strike-fill strike-safe" style="width: 100%"></div>
-                </div>
-                <p class="text-xs text-soft-gray mt-1" id="strike-status">Clean record - 0 strikes</p>
-            </div>
-        </div>
-        
-        <nav class="p-4">
-            <ul class="space-y-2">
-                <li>
-                    <a href="#" onclick="showDashboardSection('overview')" class="flex items-center p-3 rounded-xl text-soft-gray hover:bg-accent-gold/10 hover:text-accent-gold transition">
-                        <i class="fas fa-tachometer-alt mr-3"></i>
-                        Overview
-                    </a>
-                </li>
-                <li>
-                    <a href="#" onclick="showDashboardSection('marketplace')" class="flex items-center p-3 rounded-xl text-soft-gray hover:bg-accent-gold/10 hover:text-accent-gold transition">
-                        <i class="fas fa-store mr-3"></i>
-                        Marketplace
-                    </a>
-                </li>
-                <li>
-                    <a href="#" onclick="showDashboardSection('projects')" class="flex items-center p-3 rounded-xl text-soft-gray hover:bg-accent-gold/10 hover:text-accent-gold transition">
-                        <i class="fas fa-code mr-3"></i>
-                        My Projects
-                    </a>
-                </li>
-                <li>
-                    <a href="#" onclick="showDashboardSection('earnings')" class="flex items-center p-3 rounded-xl text-soft-gray hover:bg-accent-gold/10 hover:text-accent-gold transition">
-                        <i class="fas fa-chart-line mr-3"></i>
-                        Earnings
-                    </a>
-                </li>
-                <li>
-                    <a href="#" onclick="showDashboardSection('profile')" class="flex items-center p-3 rounded-xl text-soft-gray hover:bg-accent-gold/10 hover:text-accent-gold transition">
-                        <i class="fas fa-user mr-3"></i>
-                        Profile
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        
-        <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-accent-gold/10">
-            <ul class="space-y-2">
-                <li>
-                    <a href="index.html" class="flex items-center p-3 rounded-xl text-soft-gray hover:bg-accent-gold/10 hover:text-accent-gold transition">
-                        <i class="fas fa-home mr-3"></i>
-                        Home
-                    </a>
-                </li>
-                <li>
-                    <button onclick="logout()" class="w-full flex items-center p-3 rounded-xl text-soft-gray hover:bg-red-500/10 hover:text-red-500 transition">
-                        <i class="fas fa-sign-out-alt mr-3"></i>
-                        Logout
-                    </button>
-                </li>
-            </ul>
-        </div>
-    </div>
-    
-    <!-- Main Content -->
-    <div class="md:ml-72 p-4 md:p-8 min-h-screen">
-        <!-- Header -->
-        <header class="mb-8">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                <div>
-                    <h1 class="text-3xl md:text-4xl font-black" id="page-title">Developer Overview</h1>
-                    <p class="text-soft-gray mt-2" id="page-subtitle">Track your commercial capital and active projects</p>
-                </div>
-                <div class="mt-4 md:mt-0 flex items-center space-x-4">
-                    <button onclick="refreshData()" class="px-4 py-2 rounded-xl btn-outline text-sm">
-                        <i class="fas fa-sync-alt mr-2"></i> Refresh
-                    </button>
-                </div>
-            </div>
-        </header>
-        
-        <!-- Overview Section -->
-        <div id="dashboard-overview" class="dashboard-section">
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="stat-card glass-effect p-6 rounded-xl">
-                    <div class="text-2xl font-black text-accent-gold" id="stat-total-earnings">$0</div>
-                    <div class="text-sm text-soft-gray">Total Earnings</div>
-                </div>
-                <div class="stat-card glass-effect p-6 rounded-xl">
-                    <div class="text-2xl font-black text-accent-gold" id="stat-pending">$0</div>
-                    <div class="text-sm text-soft-gray">Pending</div>
-                </div>
-                <div class="stat-card glass-effect p-6 rounded-xl">
-                    <div class="text-2xl font-black text-accent-gold" id="stat-active">0</div>
-                    <div class="text-sm text-soft-gray">Active Projects</div>
-                </div>
-                <div class="stat-card glass-effect p-6 rounded-xl">
-                    <div class="text-2xl font-black text-accent-gold" id="stat-completed">0</div>
-                    <div class="text-sm text-soft-gray">Completed</div>
-                </div>
-            </div>
-            
-            <!-- Charts -->
-            <div class="grid lg:grid-cols-2 gap-8 mb-8">
-                <div class="glass-effect p-6 rounded-2xl">
-                    <h3 class="text-lg font-black mb-6">Earnings Trend</h3>
-                    <div style="height: 300px;">
-                        <canvas id="earnings-chart"></canvas>
-                    </div>
-                </div>
-                
-                <div class="glass-effect p-6 rounded-2xl">
-                    <h3 class="text-lg font-black mb-6">Recent Activity</h3>
-                    <div class="space-y-4" id="recent-activity">
-                        <div class="text-center text-soft-gray py-12">No recent activity</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Recent Projects -->
-            <div class="glass-effect p-6 rounded-2xl">
-                <h3 class="text-lg font-black mb-6">Recent Projects</h3>
-                <div id="recent-projects" class="space-y-4">
-                    <div class="text-center text-soft-gray py-12">No projects yet</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Marketplace Section -->
-        <div id="dashboard-marketplace" class="dashboard-section hidden">
-            <div class="glass-effect p-6 rounded-2xl">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-black">Available Projects</h3>
-                    <select id="marketplace-filter" class="px-4 py-2 rounded-xl form-input text-sm" onchange="loadMarketplace()">
-                        <option value="all">All Skills</option>
-                        <option value="React">React</option>
-                        <option value="Node.js">Node.js</option>
-                        <option value="Python">Python</option>
-                        <option value="Mobile">Mobile</option>
-                    </select>
-                </div>
-                <div id="marketplace-list" class="space-y-4">
-                    <!-- Projects will be loaded here -->
-                </div>
-            </div>
-        </div>
-        
-        <!-- My Projects Section -->
-        <div id="dashboard-projects" class="dashboard-section hidden">
-            <div class="glass-effect p-6 rounded-2xl">
-                <h3 class="text-lg font-black mb-6">My Projects</h3>
-                <div id="my-projects-list" class="space-y-4">
-                    <!-- Projects will be loaded here -->
-                </div>
-            </div>
-        </div>
-        
-        <!-- Earnings Section -->
-        <div id="dashboard-earnings" class="dashboard-section hidden">
-            <div class="glass-effect p-6 rounded-2xl">
-                <h3 class="text-lg font-black mb-6">Earnings Overview</h3>
-                <div class="grid md:grid-cols-3 gap-6 mb-8">
-                    <div class="glass-gold p-6 rounded-xl text-center">
-                        <div class="text-3xl font-black text-accent-gold" id="earnings-total">$0</div>
-                        <div class="text-sm text-soft-gray">Total Earned</div>
-                    </div>
-                    <div class="glass-gold p-6 rounded-xl text-center">
-                        <div class="text-3xl font-black text-accent-gold" id="earnings-this-month">$0</div>
-                        <div class="text-sm text-soft-gray">This Month</div>
-                    </div>
-                    <div class="glass-gold p-6 rounded-xl text-center">
-                        <div class="text-3xl font-black text-accent-gold" id="earnings-pending">$0</div>
-                        <div class="text-sm text-soft-gray">Pending</div>
-                    </div>
-                </div>
-                <div style="height: 300px;">
-                    <canvas id="earnings-history-chart"></canvas>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Profile Section -->
-        <div id="dashboard-profile" class="dashboard-section hidden">
-            <div class="glass-effect p-6 rounded-2xl">
-                <h3 class="text-lg font-black mb-6">Profile Settings</h3>
-                
-                <form id="profile-form" class="max-w-2xl space-y-6">
-                    <div>
-                        <label class="block text-soft-gray text-sm mb-2">Display Name</label>
-                        <input type="text" id="profile-name" class="w-full px-4 py-3 rounded-xl form-input">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-soft-gray text-sm mb-2">Email</label>
-                        <input type="email" id="profile-email" class="w-full px-4 py-3 rounded-xl form-input" readonly>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-soft-gray text-sm mb-2">Primary Role</label>
-                        <select id="profile-role" class="w-full px-4 py-3 rounded-xl form-input">
-                            <option value="full-stack">Full Stack Developer</option>
-                            <option value="frontend">Frontend Developer</option>
-                            <option value="backend">Backend Developer</option>
-                            <option value="mobile">Mobile Developer</option>
-                            <option value="devops">DevOps Engineer</option>
-                            <option value="ai-ml">AI/ML Specialist</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-soft-gray text-sm mb-2">Hourly Rate ($)</label>
-                        <input type="number" id="profile-rate" class="w-full px-4 py-3 rounded-xl form-input" min="10" max="200">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-soft-gray text-sm mb-2">Bio</label>
-                        <textarea id="profile-bio" rows="4" class="w-full px-4 py-3 rounded-xl form-input"></textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-soft-gray text-sm mb-2">Skills</label>
-                        <div id="profile-skills" class="flex flex-wrap gap-2 mb-3"></div>
-                        <div class="flex">
-                            <input type="text" id="new-skill" class="flex-grow px-4 py-3 rounded-l-xl form-input" placeholder="Add a skill">
-                            <button type="button" onclick="addProfileSkill()" class="px-6 py-3 rounded-r-xl btn-primary">Add</button>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-soft-gray text-sm mb-2">Portfolio URL</label>
-                        <input type="url" id="profile-portfolio" class="w-full px-4 py-3 rounded-xl form-input">
-                    </div>
-                    
-                    <div class="flex justify-end">
-                        <button type="submit" class="btn-primary px-8 py-3 rounded-xl">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Project Details Modal -->
-    <div id="project-modal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/95 backdrop-blur-xl">
-        <div class="glass-effect max-w-2xl w-full rounded-2xl p-6 md:p-8">
-            <div class="flex justify-between items-start mb-6">
-                <h3 class="text-2xl font-black text-accent-gold" id="modal-project-title">Project Details</h3>
-                <button onclick="closeProjectModal()" class="text-soft-gray hover:text-accent-gold">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <div id="modal-project-content" class="space-y-4">
-                <!-- Content will be populated -->
-            </div>
-        </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="auth-right">
+    <div class="form-header">
+      <h2>Welcome Back 👋</h2>
+      <p>Sign in or create your account to continue</p>
     </div>
 
-    <script>
-        // ==================== FIREBASE CONFIGURATION ====================
-        const firebaseConfig = {
-            apiKey: "AIzaSyC1Ps2vP8ilQNPp9zeaxP9sGBglGVKBSPM",
-            authDomain: "codenprofit-17152.firebaseapp.com",
-            projectId: "codenprofit-17152",
-            storageBucket: "codenprofit-17152.firebasestorage.app",
-            messagingSenderId: "340619486766",
-            appId: "1:340619486766:web:4600dd0ce05467c46ba1bf",
-            measurementId: "G-0KMHJ2Z0PP"
-        };
-
-        // ==================== GLOBAL VARIABLES ====================
-        let currentUser = null;
-        let userData = null;
-        let isDemoMode = false;
-        let isOnline = true;
-        let earningsChart = null;
-        let earningsHistoryChart = null;
-        let firebaseInitialized = false;
-        let db, auth, storage, analytics;
-        
-        let onboardingData = {
-            role: '',
-            skills: [],
-            portfolio: '',
-            bio: '',
-            hourlyRate: 0
-        };
-        let currentOnboardingStep = 1;
-
-        // ==================== INITIALIZE FIREBASE ====================
-        try {
-            // Initialize Firebase
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
-            
-            auth = firebase.auth();
-            db = firebase.firestore();
-            storage = firebase.storage();
-            
-            if (typeof firebase.analytics !== 'undefined') {
-                analytics = firebase.analytics();
-            }
-            
-            // Enable offline persistence
-            db.enablePersistence({ synchronizeTabs: true })
-                .catch(err => {
-                    if (err.code === 'failed-precondition') {
-                        console.warn('Multiple tabs open, persistence enabled in single tab only');
-                    } else if (err.code === 'unimplemented') {
-                        console.warn('Browser doesn\'t support persistence');
-                    }
-                });
-            
-            firebaseInitialized = true;
-            console.log('✅ Firebase initialized successfully with project:', firebaseConfig.projectId);
-            document.getElementById('connection-status').innerHTML = `
-                <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
-                <span class="text-green-400">Connected to ${firebaseConfig.projectId}</span>
-            `;
-            
-        } catch (error) {
-            console.error('❌ Firebase initialization error:', error);
-            firebaseInitialized = false;
-            isDemoMode = true;
-            document.getElementById('connection-status').innerHTML = `
-                <span class="w-2 h-2 rounded-full bg-yellow-500 mr-2"></span>
-                <span class="text-yellow-400">Demo Mode Active</span>
-            `;
-        }
-
-        // ==================== FIREBASE SERVICE OBJECT ====================
-        const FirebaseService = {
-            isInitialized: () => firebaseInitialized,
-            getAuth: () => auth,
-            getDb: () => db,
-            getStorage: () => storage,
-            getAnalytics: () => analytics,
-            
-            // Auth Methods
-            signUp: async (email, password, userData) => {
-                try {
-                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
-                    
-                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                    const user = userCredential.user;
-                    
-                    await user.updateProfile({ displayName: userData.displayName });
-                    
-                    // Save to Firestore
-                    await db.collection(userData.userType + 's').doc(user.uid).set({
-                        ...userData,
-                        uid: user.uid,
-                        email: user.email,
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString(),
-                        onboardingComplete: false,
-                        totalEarnings: 0,
-                        pendingEarnings: 0,
-                        activeProjects: 0,
-                        completedProjects: 0,
-                        avgRating: 5.0,
-                        strikes: 0,
-                        badges: ['New Member']
-                    });
-                    
-                    if (analytics) {
-                        analytics.logEvent('sign_up', { method: 'email', userType: userData.userType });
-                    }
-                    
-                    return { success: true, user };
-                } catch (error) {
-                    return { success: false, error: error.message };
-                }
-            },
-            
-            signIn: async (email, password) => {
-                try {
-                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
-                    
-                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                    
-                    if (analytics) {
-                        analytics.logEvent('login', { method: 'email' });
-                    }
-                    
-                    return { success: true, user: userCredential.user };
-                } catch (error) {
-                    return { success: false, error: error.message };
-                }
-            },
-            
-            signOut: async () => {
-                try {
-                    if (auth) await auth.signOut();
-                    return { success: true };
-                } catch (error) {
-                    return { success: false, error: error.message };
-                }
-            },
-            
-            // Get User Data
-            getUserData: async (userId, userType) => {
-                try {
-                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
-                    
-                    const doc = await db.collection(userType + 's').doc(userId).get();
-                    if (doc.exists) {
-                        return { success: true, data: { id: doc.id, ...doc.data() } };
-                    }
-                    return { success: false, error: 'User not found' };
-                } catch (error) {
-                    return { success: false, error: error.message };
-                }
-            },
-            
-            // Update User Data
-            updateUserData: async (userId, userType, data) => {
-                try {
-                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
-                    
-                    await db.collection(userType + 's').doc(userId).set({
-                        ...data,
-                        updatedAt: new Date().toISOString()
-                    }, { merge: true });
-                    return { success: true };
-                } catch (error) {
-                    return { success: false, error: error.message };
-                }
-            },
-            
-            // Get User Type
-            getUserType: async (userId) => {
-                try {
-                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
-                    
-                    const devDoc = await db.collection('developers').doc(userId).get();
-                    if (devDoc.exists) {
-                        return { success: true, type: 'developer', data: devDoc.data() };
-                    }
-                    
-                    const hostDoc = await db.collection('hosts').doc(userId).get();
-                    if (hostDoc.exists) {
-                        return { success: true, type: 'host', data: hostDoc.data() };
-                    }
-                    
-                    return { success: false, error: 'User type not found' };
-                } catch (error) {
-                    return { success: false, error: error.message };
-                }
-            },
-            
-            // Get Available Projects
-            getAvailableProjects: async () => {
-                try {
-                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
-                    
-                    const snapshot = await db.collection('projects')
-                        .where('status', '==', 'open')
-                        .orderBy('createdAt', 'desc')
-                        .limit(20)
-                        .get();
-
-                    const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    return { success: true, projects };
-                } catch (error) {
-                    return { success: false, error: error.message };
-                }
-            },
-            
-            // Get Projects by Developer
-            getProjectsByDeveloper: async (developerId) => {
-                try {
-                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
-                    
-                    const snapshot = await db.collection('projects')
-                        .where('developerId', '==', developerId)
-                        .orderBy('createdAt', 'desc')
-                        .get();
-
-                    const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    return { success: true, projects };
-                } catch (error) {
-                    return { success: false, error: error.message };
-                }
-            },
-            
-            // Apply for Project
-            applyForProject: async (projectId, developerId, developerData) => {
-                try {
-                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
-                    
-                    const application = {
-                        projectId,
-                        developerId,
-                        developerName: developerData.displayName,
-                        developerEmail: developerData.email,
-                        appliedAt: new Date().toISOString(),
-                        status: 'pending'
-                    };
-
-                    await db.collection('applications').add(application);
-
-                    // Update project applications array
-                    await db.collection('projects').doc(projectId).update({
-                        applications: firebase.firestore.FieldValue.arrayUnion(developerId)
-                    });
-
-                    return { success: true };
-                } catch (error) {
-                    return { success: false, error: error.message };
-                }
-            },
-            
-            // Get Host Projects
-            getHostProjects: async (hostId) => {
-                try {
-                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
-                    
-                    const snapshot = await db.collection('projects')
-                        .where('hostId', '==', hostId)
-                        .orderBy('createdAt', 'desc')
-                        .get();
-
-                    const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    return { success: true, projects };
-                } catch (error) {
-                    return { success: false, error: error.message };
-                }
-            },
-            
-            // Create Project (for hosts)
-            createProject: async (projectData) => {
-                try {
-                    if (!firebaseInitialized) throw new Error('Firebase not initialized');
-                    
-                    const project = {
-                        ...projectData,
-                        applications: [],
-                        status: 'open',
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    };
-
-                    const docRef = await db.collection('projects').add(project);
-                    return { success: true, id: docRef.id };
-                } catch (error) {
-                    return { success: false, error: error.message };
-                }
-            }
-        };
-
-        // ==================== INITIALIZATION ====================
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check network status
-            window.addEventListener('online', () => {
-                isOnline = true;
-                document.getElementById('offline-indicator').style.display = 'none';
-                updateConnectionStatus();
-            });
-
-            window.addEventListener('offline', () => {
-                isOnline = false;
-                document.getElementById('offline-indicator').style.display = 'block';
-                updateConnectionStatus();
-            });
-
-            // Check authentication
-            checkAuth();
-
-            // Setup event listeners
-            setupEventListeners();
-        });
-
-        // ==================== AUTHENTICATION ====================
-        function checkAuth() {
-            showLoading('Verifying credentials...');
-
-            // Check demo user first
-            const demoUser = localStorage.getItem('codenprofit_user');
-            if (demoUser) {
-                try {
-                    const user = JSON.parse(demoUser);
-                    if (user.userType === 'developer') {
-                        currentUser = user;
-                        userData = user;
-                        hideLoading();
-                        initializeDashboard();
-                        return;
-                    } else {
-                        // Wrong user type - redirect to host page
-                        window.location.href = 'host.html';
-                        return;
-                    }
-                } catch (e) {
-                    localStorage.removeItem('codenprofit_user');
-                }
-            }
-
-            // Check Firebase auth
-            if (firebaseInitialized && auth) {
-                auth.onAuthStateChanged(async (user) => {
-                    if (user) {
-                        currentUser = user;
-                        
-                        // Check if user is developer
-                        try {
-                            const result = await FirebaseService.getUserData(user.uid, 'developer');
-                            if (result.success) {
-                                userData = result.data;
-                                
-                                if (userData.onboardingComplete) {
-                                    hideLoading();
-                                    initializeDashboard();
-                                } else {
-                                    hideLoading();
-                                    showOnboarding();
-                                }
-                            } else {
-                                // Not a developer, check if host
-                                const hostResult = await FirebaseService.getUserData(user.uid, 'host');
-                                if (hostResult.success) {
-                                    // Redirect to host page
-                                    window.location.href = 'host.html';
-                                } else {
-                                    // New user - show onboarding
-                                    hideLoading();
-                                    showOnboarding();
-                                }
-                            }
-                        } catch (error) {
-                            console.error('Auth error:', error);
-                            hideLoading();
-                            showNotification('Error', 'Failed to load user data. Using demo mode.', 'warning');
-                            isDemoMode = true;
-                            loadDemoUser();
-                        }
-                    } else {
-                        // Not logged in - use demo mode
-                        console.log('No user logged in, using demo mode');
-                        isDemoMode = true;
-                        loadDemoUser();
-                    }
-                });
-            } else {
-                // Firebase not initialized, use demo mode
-                console.log('Firebase not initialized, using demo mode');
-                isDemoMode = true;
-                loadDemoUser();
-            }
-        }
-
-        function loadDemoUser() {
-            const demoUser = {
-                uid: 'demo_' + Date.now(),
-                email: 'demo@codenprofit.com',
-                displayName: 'Demo Developer',
-                firstName: 'Demo',
-                lastName: 'Developer',
-                userType: 'developer',
-                role: 'full-stack',
-                skills: ['JavaScript', 'React', 'Node.js'],
-                hourlyRate: 45,
-                bio: 'Demo developer account for testing',
-                portfolio: 'https://github.com/demo',
-                totalEarnings: 12500,
-                pendingEarnings: 2500,
-                activeProjects: 2,
-                completedProjects: 8,
-                avgRating: 4.8,
-                strikes: 0,
-                badges: ['Demo Mode', 'Elite Network'],
-                onboardingComplete: true
-            };
-            
-            currentUser = demoUser;
-            userData = demoUser;
-            hideLoading();
-            initializeDashboard();
-            showNotification('Demo Mode', 'You are in demo mode. Sign up to save your progress.', 'info');
-        }
-
-        // ==================== ONBOARDING ====================
-        function showOnboarding() {
-            document.getElementById('onboarding-overlay').classList.remove('hidden');
-        }
-
-        function hideOnboarding() {
-            document.getElementById('onboarding-overlay').classList.add('hidden');
-        }
-
-        window.nextOnboardingStep = function() {
-            // Validate current step
-            if (currentOnboardingStep === 2 && !onboardingData.role) {
-                showNotification('Error', 'Please select your primary role', 'error');
-                return;
-            }
-
-            if (currentOnboardingStep === 3 && onboardingData.skills.length < 3) {
-                showNotification('Error', 'Please select at least 3 skills', 'error');
-                return;
-            }
-
-            // Hide current step
-            document.getElementById(`onboarding-step-${currentOnboardingStep}`).classList.remove('active');
-
-            // Update progress dots
-            document.querySelectorAll('.progress-dot').forEach((dot, index) => {
-                if (index + 1 <= currentOnboardingStep) {
-                    dot.classList.add('active');
-                }
-            });
-
-            // Move to next step
-            currentOnboardingStep++;
-            document.getElementById(`onboarding-step-${currentOnboardingStep}`).classList.add('active');
-
-            // Pre-fill step 4 if data exists
-            if (currentOnboardingStep === 4) {
-                document.getElementById('portfolio-url').value = onboardingData.portfolio || '';
-                document.getElementById('developer-bio').value = onboardingData.bio || '';
-                document.getElementById('hourly-rate').value = onboardingData.hourlyRate || '';
-            }
-        };
-
-        window.prevOnboardingStep = function() {
-            document.getElementById(`onboarding-step-${currentOnboardingStep}`).classList.remove('active');
-            currentOnboardingStep--;
-            document.getElementById(`onboarding-step-${currentOnboardingStep}`).classList.add('active');
-
-            document.querySelectorAll('.progress-dot').forEach((dot, index) => {
-                if (index + 1 < currentOnboardingStep) {
-                    dot.classList.add('active');
-                } else {
-                    dot.classList.remove('active');
-                }
-            });
-        };
-
-        // Role selection
-        document.querySelectorAll('.role-card').forEach(card => {
-            card.addEventListener('click', function() {
-                document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-                onboardingData.role = this.dataset.role;
-            });
-        });
-
-        // Skill selection
-        document.querySelectorAll('.skill-option').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const skill = this.dataset.skill;
-                const container = document.getElementById('selected-skills');
-
-                if (this.classList.contains('selected')) {
-                    this.classList.remove('selected');
-                    onboardingData.skills = onboardingData.skills.filter(s => s !== skill);
-                    const tag = container.querySelector(`[data-skill="${skill}"]`);
-                    if (tag) tag.remove();
-                } else {
-                    this.classList.add('selected');
-                    onboardingData.skills.push(skill);
-
-                    const tag = document.createElement('span');
-                    tag.className = 'skill-tag';
-                    tag.textContent = skill;
-                    tag.dataset.skill = skill;
-                    container.appendChild(tag);
-                }
-
-                document.getElementById('continue-step3').disabled = onboardingData.skills.length < 3;
-            });
-        });
-
-        window.addCustomSkill = function() {
-            const input = document.getElementById('custom-skill');
-            const skill = input.value.trim();
-
-            if (skill && !onboardingData.skills.includes(skill)) {
-                onboardingData.skills.push(skill);
-
-                const container = document.getElementById('selected-skills');
-                const tag = document.createElement('span');
-                tag.className = 'skill-tag';
-                tag.textContent = skill;
-                tag.dataset.skill = skill;
-                container.appendChild(tag);
-
-                input.value = '';
-                document.getElementById('continue-step3').disabled = false;
-            }
-        };
-
-        window.completeOnboarding = async function() {
-            onboardingData.portfolio = document.getElementById('portfolio-url').value;
-            onboardingData.bio = document.getElementById('developer-bio').value;
-            onboardingData.hourlyRate = parseInt(document.getElementById('hourly-rate').value) || 0;
-
-            if (!onboardingData.portfolio || !onboardingData.bio || onboardingData.hourlyRate < 10) {
-                showNotification('Error', 'Please fill all fields correctly', 'error');
-                return;
-            }
-
-            showLoading('Activating profile...');
-
-            const profile = {
-                ...(currentUser || {}),
-                ...onboardingData,
-                onboardingComplete: true,
-                displayName: currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Developer',
-                email: currentUser?.email || 'demo@codenprofit.com',
-                userType: 'developer',
-                totalEarnings: 0,
-                pendingEarnings: 0,
-                activeProjects: 0,
-                completedProjects: 0,
-                avgRating: 5.0,
-                strikes: 0,
-                badges: ['New Member', 'Elite Network']
-            };
-
-            userData = profile;
-
-            if (!isDemoMode && firebaseInitialized && currentUser?.uid) {
-                await FirebaseService.updateUserData(currentUser.uid, 'developer', profile);
-            } else {
-                // Save to localStorage
-                localStorage.setItem('codenprofit_user', JSON.stringify({
-                    ...profile,
-                    uid: 'demo_' + Date.now()
-                }));
-            }
-
-            setTimeout(() => {
-                hideLoading();
-                hideOnboarding();
-                initializeDashboard();
-                showNotification('Welcome!', 'Your profile is now active!', 'success');
-            }, 1500);
-        };
-
-        // ==================== DASHBOARD INITIALIZATION ====================
-        function initializeDashboard() {
-            updateUI();
-            initializeCharts();
-            loadMarketplace();
-            loadMyProjects();
-            loadRecentActivity();
-            showDashboardSection('overview');
-        }
-
-        function updateUI() {
-            if (userData) {
-                const name = userData.displayName || userData.email?.split('@')[0] || 'Developer';
-                const initials = name.split(' ').map(n => n[0]).join('').toUpperCase() || 'D';
-
-                document.getElementById('user-initials').textContent = initials;
-                document.getElementById('user-name').textContent = name;
-
-                let roleDisplay = '';
-                switch(userData.role) {
-                    case 'full-stack': roleDisplay = 'Full Stack'; break;
-                    case 'frontend': roleDisplay = 'Frontend'; break;
-                    case 'backend': roleDisplay = 'Backend'; break;
-                    case 'mobile': roleDisplay = 'Mobile'; break;
-                    case 'devops': roleDisplay = 'DevOps'; break;
-                    case 'ai-ml': roleDisplay = 'AI/ML'; break;
-                    default: roleDisplay = userData.role || 'Developer';
-                }
-                document.getElementById('user-role').textContent = roleDisplay;
-                document.getElementById('user-rating').textContent = userData.avgRating?.toFixed(1) || '5.0';
-
-                // Update stats
-                document.getElementById('stat-total-earnings').textContent = '$' + (userData.totalEarnings || 0).toLocaleString();
-                document.getElementById('stat-pending').textContent = '$' + (userData.pendingEarnings || 0).toLocaleString();
-                document.getElementById('stat-active').textContent = userData.activeProjects || 0;
-                document.getElementById('stat-completed').textContent = userData.completedProjects || 0;
-
-                document.getElementById('earnings-total').textContent = '$' + (userData.totalEarnings || 0).toLocaleString();
-                document.getElementById('earnings-this-month').textContent = '$' + ((userData.totalEarnings || 0) * 0.3).toFixed(0).toLocaleString();
-                document.getElementById('earnings-pending').textContent = '$' + (userData.pendingEarnings || 0).toLocaleString();
-
-                // Update strike meter
-                updateStrikeMeter(userData.strikes || 0);
-
-                // Profile form
-                document.getElementById('profile-name').value = userData.displayName || '';
-                document.getElementById('profile-email').value = userData.email || '';
-                document.getElementById('profile-role').value = userData.role || 'full-stack';
-                document.getElementById('profile-rate').value = userData.hourlyRate || '';
-                document.getElementById('profile-bio').value = userData.bio || '';
-                document.getElementById('profile-portfolio').value = userData.portfolio || '';
-
-                // Skills
-                const skillsContainer = document.getElementById('profile-skills');
-                skillsContainer.innerHTML = '';
-                if (userData.skills && userData.skills.length) {
-                    userData.skills.forEach(skill => {
-                        const tag = document.createElement('span');
-                        tag.className = 'skill-tag';
-                        tag.textContent = skill;
-                        skillsContainer.appendChild(tag);
-                    });
-                }
-            }
-        }
-
-        function updateStrikeMeter(strikes) {
-            const fill = document.getElementById('strike-fill');
-            const status = document.getElementById('strike-status');
-            const percentage = document.getElementById('strike-percentage');
-
-            let width = 100 - (strikes * 20);
-            if (width < 0) width = 0;
-
-            let statusText = 'Clean record';
-            let className = 'strike-safe';
-
-            if (strikes === 1) {
-                statusText = '1 strike - Warning';
-                className = 'strike-warning';
-            } else if (strikes === 2) {
-                statusText = '2 strikes - Critical';
-                className = 'strike-warning';
-            } else if (strikes >= 3) {
-                statusText = '3+ strikes - Danger';
-                className = 'strike-danger';
-            }
-
-            fill.style.width = width + '%';
-            fill.className = 'strike-fill ' + className;
-            status.textContent = statusText + ' - ' + strikes + ' strike' + (strikes !== 1 ? 's' : '');
-            percentage.textContent = width + '%';
-        }
-
-        function initializeCharts() {
-            // Earnings Chart
-            const earningsCtx = document.getElementById('earnings-chart')?.getContext('2d');
-            if (earningsCtx) {
-                if (earningsChart) earningsChart.destroy();
-
-                earningsChart = new Chart(earningsCtx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                        datasets: [{
-                            label: 'Earnings',
-                            data: [1200, 1900, 3000, 5000, 8000, 10000, userData?.totalEarnings || 12500],
-                            borderColor: '#FFD700',
-                            backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { labels: { color: '#A0A0B0' } }
-                        },
-                        scales: {
-                            x: { grid: { color: 'rgba(160, 160, 176, 0.1)' }, ticks: { color: '#A0A0B0' } },
-                            y: { grid: { color: 'rgba(160, 160, 176, 0.1)' }, ticks: { color: '#A0A0B0' } }
-                        }
-                    }
-                });
-            }
-
-            // Earnings History Chart
-            const historyCtx = document.getElementById('earnings-history-chart')?.getContext('2d');
-            if (historyCtx) {
-                if (earningsHistoryChart) earningsHistoryChart.destroy();
-
-                earningsHistoryChart = new Chart(historyCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                        datasets: [{
-                            label: 'Earnings',
-                            data: [1200, 1900, 3000, userData?.totalEarnings ? userData.totalEarnings - 6100 : 6400],
-                            backgroundColor: '#FFD700',
-                            borderRadius: 8
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { labels: { color: '#A0A0B0' } }
-                        },
-                        scales: {
-                            x: { grid: { display: false }, ticks: { color: '#A0A0B0' } },
-                            y: { grid: { color: 'rgba(160, 160, 176, 0.1)' }, ticks: { color: '#A0A0B0' } }
-                        }
-                    }
-                });
-            }
-        }
-
-        // ==================== MARKETPLACE ====================
-        async function loadMarketplace() {
-            const filter = document.getElementById('marketplace-filter')?.value || 'all';
-            const container = document.getElementById('marketplace-list');
-
-            if (!container) return;
-
-            showLoading('Loading marketplace...');
-
-            try {
-                let projects = [];
-
-                if (!isDemoMode && firebaseInitialized) {
-                    const result = await FirebaseService.getAvailableProjects();
-                    if (result.success) {
-                        projects = result.projects;
-                    }
-                }
-
-                // If no projects or demo mode, use demo data
-                if (projects.length === 0) {
-                    projects = [
-                        {
-                            id: 'demo1',
-                            title: 'Luxury E-commerce Platform',
-                            description: 'Build a high-end e-commerce platform for a premium fashion brand',
-                            budget: '$3,500 - $5,000',
-                            timeline: '4-6 weeks',
-                            skills: ['React', 'Node.js', 'MongoDB'],
-                            status: 'open',
-                            client: 'FashionHub Premium',
-                            clientId: 'host_demo1'
-                        },
-                        {
-                            id: 'demo2',
-                            title: 'AI Analytics Dashboard',
-                            description: 'Create a real-time analytics dashboard with AI predictions',
-                            budget: '$5,000 - $8,000',
-                            timeline: '6-8 weeks',
-                            skills: ['Python', 'React', 'TensorFlow'],
-                            status: 'open',
-                            client: 'DataViz Corp',
-                            clientId: 'host_demo2'
-                        },
-                        {
-                            id: 'demo3',
-                            title: 'Mobile Banking App',
-                            description: 'Develop a secure mobile banking application',
-                            budget: '$8,000 - $12,000',
-                            timeline: '8-10 weeks',
-                            skills: ['React Native', 'Node.js', 'PostgreSQL'],
-                            status: 'open',
-                            client: 'FinTech Solutions',
-                            clientId: 'host_demo3'
-                        },
-                        {
-                            id: 'demo4',
-                            title: 'CRM System Integration',
-                            description: 'Integrate custom CRM with existing business tools',
-                            budget: '$4,000 - $6,000',
-                            timeline: '5-7 weeks',
-                            skills: ['Node.js', 'PostgreSQL', 'REST API'],
-                            status: 'open',
-                            client: 'SalesMaster Inc',
-                            clientId: 'host_demo4'
-                        }
-                    ];
-                }
-
-                // Filter projects by skill if needed
-                if (filter !== 'all') {
-                    projects = projects.filter(p => p.skills?.includes(filter));
-                }
-
-                if (projects.length === 0) {
-                    container.innerHTML = '<div class="text-center text-soft-gray py-12">No projects available</div>';
-                } else {
-                    container.innerHTML = projects.map(p => `
-                        <div class="project-card glass-effect p-6 rounded-xl">
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <h4 class="font-black text-lg">${p.title}</h4>
-                                    <p class="text-sm text-soft-gray mt-1">${p.client || 'Client'}</p>
-                                </div>
-                                <span class="status-pill status-available">Open</span>
-                            </div>
-                            <p class="text-sm text-soft-gray mb-4">${p.description}</p>
-                            <div class="flex flex-wrap gap-2 mb-4">
-                                ${(p.skills || []).map(s => `<span class="skill-tag">${s}</span>`).join('')}
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <span class="text-accent-gold font-black">${p.budget}</span>
-                                    <span class="text-sm text-soft-gray ml-2">${p.timeline}</span>
-                                </div>
-                                <button onclick="applyForProject('${p.id}')" class="btn-primary px-6 py-2 rounded-lg text-sm">
-                                    Apply Now
-                                </button>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-            } catch (error) {
-                console.error('Error loading marketplace:', error);
-                container.innerHTML = '<div class="text-center text-soft-gray py-12">Failed to load projects</div>';
-            } finally {
-                hideLoading();
-            }
-        }
-
-        // ==================== MY PROJECTS ====================
-        async function loadMyProjects() {
-            const container = document.getElementById('my-projects-list');
-            if (!container) return;
-
-            let projects = [];
-
-            if (!isDemoMode && firebaseInitialized && currentUser?.uid) {
-                const result = await FirebaseService.getProjectsByDeveloper(currentUser.uid);
-                if (result.success) {
-                    projects = result.projects;
-                }
-            }
-
-            // Demo projects if none
-            if (projects.length === 0) {
-                projects = [
-                    {
-                        id: 'active1',
-                        title: 'E-commerce Platform',
-                        client: 'FashionHub Premium',
-                        clientId: 'host_demo1',
-                        progress: 65,
-                        deadline: '2 weeks',
-                        status: 'in-progress',
-                        budget: '$3,500',
-                        description: 'Building a modern e-commerce platform with React and Node.js'
-                    },
-                    {
-                        id: 'active2',
-                        title: 'API Development',
-                        client: 'TechStart Solutions',
-                        clientId: 'host_demo5',
-                        progress: 30,
-                        deadline: '4 weeks',
-                        status: 'in-progress',
-                        budget: '$2,800',
-                        description: 'Developing RESTful APIs for mobile applications'
-                    }
-                ];
-
-                if (userData?.completedProjects > 0) {
-                    projects.push({
-                        id: 'completed1',
-                        title: 'Portfolio Website',
-                        client: 'Creative Agency',
-                        clientId: 'host_demo6',
-                        progress: 100,
-                        completedDate: '2024-01-15',
-                        status: 'completed',
-                        budget: '$1,500',
-                        description: 'Modern portfolio website with CMS integration'
-                    });
-                }
-            }
-
-            if (projects.length === 0) {
-                container.innerHTML = '<div class="text-center text-soft-gray py-12">No projects yet. Browse the marketplace to find opportunities!</div>';
-            } else {
-                container.innerHTML = projects.map(p => `
-                    <div class="project-card glass-effect p-6 rounded-xl">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h4 class="font-black">${p.title}</h4>
-                                <p class="text-sm text-soft-gray">${p.client || 'Client'}</p>
-                            </div>
-                            <span class="status-pill ${p.status === 'completed' ? 'status-completed' : 'status-inprogress'}">${p.status === 'completed' ? 'Completed' : 'In Progress'}</span>
-                        </div>
-                        <p class="text-sm text-soft-gray mb-4">${p.description}</p>
-                        ${p.status !== 'completed' ? `
-                        <div class="mb-4">
-                            <div class="flex justify-between text-sm mb-1">
-                                <span class="text-soft-gray">Progress</span>
-                                <span class="text-accent-gold">${p.progress || 0}%</span>
-                            </div>
-                            <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                                <div class="h-full bg-accent-gold" style="width: ${p.progress || 0}%"></div>
-                            </div>
-                        </div>
-                        ` : ''}
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-soft-gray">${p.status === 'completed' ? 'Completed: ' + (p.completedDate || '2024') : 'Deadline: ' + (p.deadline || 'TBD')}</span>
-                            <span class="text-accent-gold font-black">${p.budget}</span>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // ==================== RECENT ACTIVITY ====================
-        function loadRecentActivity() {
-            const container = document.getElementById('recent-activity');
-            if (!container) return;
-
-            const activities = [
-                { type: 'application', message: 'Applied to Luxury E-commerce Platform', time: '2 hours ago' },
-                { type: 'payment', message: 'Received payment of $500', time: '1 day ago' },
-                { type: 'project', message: 'Started new project: AI Dashboard', time: '3 days ago' },
-                { type: 'message', message: 'New message from host: FashionHub Premium', time: '4 days ago' },
-                { type: 'review', message: 'Received 5-star review from TechStart Solutions', time: '1 week ago' }
-            ];
-
-            if (userData?.totalEarnings > 0) {
-                container.innerHTML = activities.map(a => `
-                    <div class="flex items-start space-x-3 border-b border-white/5 pb-3">
-                        <div class="w-8 h-8 rounded-full bg-accent-gold/10 flex items-center justify-center">
-                            <i class="fas fa-${a.type === 'application' ? 'paper-plane' : a.type === 'payment' ? 'dollar-sign' : a.type === 'message' ? 'envelope' : a.type === 'review' ? 'star' : 'code'} text-accent-gold text-xs"></i>
-                        </div>
-                        <div class="flex-grow">
-                            <p class="text-sm">${a.message}</p>
-                            <p class="text-xs text-soft-gray mt-1">${a.time}</p>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                container.innerHTML = '<div class="text-center text-soft-gray py-12">No recent activity. Start by applying to projects!</div>';
-            }
-        }
-
-        // ==================== PROJECT ACTIONS ====================
-        window.applyForProject = async function(projectId) {
-            if (!currentUser) {
-                showNotification('Error', 'Please sign in first', 'error');
-                return;
-            }
-
-            showLoading('Submitting application...');
-
-            if (isDemoMode) {
-                setTimeout(() => {
-                    hideLoading();
-                    showNotification('Success', 'Application submitted! (Demo Mode)', 'success');
-                    
-                    // Add to recent activity
-                    const activityContainer = document.getElementById('recent-activity');
-                    if (activityContainer) {
-                        const newActivity = document.createElement('div');
-                        newActivity.className = 'flex items-start space-x-3 border-b border-white/5 pb-3';
-                        newActivity.innerHTML = `
-                            <div class="w-8 h-8 rounded-full bg-accent-gold/10 flex items-center justify-center">
-                                <i class="fas fa-paper-plane text-accent-gold text-xs"></i>
-                            </div>
-                            <div class="flex-grow">
-                                <p class="text-sm">Applied to project</p>
-                                <p class="text-xs text-soft-gray mt-1">Just now</p>
-                            </div>
-                        `;
-                        activityContainer.prepend(newActivity);
-                    }
-                }, 1000);
-                return;
-            }
-
-            try {
-                const result = await FirebaseService.applyForProject(projectId, currentUser.uid, userData);
-                if (result.success) {
-                    showNotification('Success', 'Application submitted successfully!', 'success');
-                    loadMarketplace(); // Refresh marketplace
-                } else {
-                    showNotification('Error', result.error, 'error');
-                }
-            } catch (error) {
-                showNotification('Error', error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        };
-
-        window.viewProject = function(projectId) {
-            showNotification('Info', 'Opening project details...', 'info');
-            // In a real app, you would open a modal with project details
-        };
-
-        // ==================== PROFILE ACTIONS ====================
-        window.addProfileSkill = function() {
-            const input = document.getElementById('new-skill');
-            const skill = input.value.trim();
-
-            if (skill) {
-                if (!userData.skills) userData.skills = [];
-                if (!userData.skills.includes(skill)) {
-                    userData.skills.push(skill);
-
-                    const container = document.getElementById('profile-skills');
-                    const tag = document.createElement('span');
-                    tag.className = 'skill-tag';
-                    tag.textContent = skill;
-                    container.appendChild(tag);
-
-                    input.value = '';
-                } else {
-                    showNotification('Info', 'Skill already added', 'info');
-                }
-            }
-        };
-
-        // Profile form submit
-        document.getElementById('profile-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const updates = {
-                displayName: document.getElementById('profile-name').value,
-                role: document.getElementById('profile-role').value,
-                hourlyRate: parseInt(document.getElementById('profile-rate').value) || 0,
-                bio: document.getElementById('profile-bio').value,
-                portfolio: document.getElementById('profile-portfolio').value,
-                skills: userData?.skills || []
-            };
-
-            userData = { ...userData, ...updates };
-
-            showLoading('Saving changes...');
-
-            if (!isDemoMode && firebaseInitialized && currentUser?.uid) {
-                await FirebaseService.updateUserData(currentUser.uid, 'developer', userData);
-                showNotification('Success', 'Profile updated in Firebase!', 'success');
-            } else {
-                localStorage.setItem('codenprofit_user', JSON.stringify(userData));
-                showNotification('Success', 'Profile updated locally!', 'success');
-            }
-
-            setTimeout(() => {
-                hideLoading();
-                updateUI();
-            }, 1000);
-        });
-
-        // ==================== DASHBOARD NAVIGATION ====================
-        window.showDashboardSection = function(section) {
-            document.querySelectorAll('.dashboard-section').forEach(s => s.classList.add('hidden'));
-            document.getElementById(`dashboard-${section}`).classList.remove('hidden');
-
-            const titles = {
-                overview: { title: 'Developer Overview', subtitle: 'Track your commercial capital and active projects' },
-                marketplace: { title: 'Project Marketplace', subtitle: 'Browse available projects and apply' },
-                projects: { title: 'My Projects', subtitle: 'Manage your active and completed projects' },
-                earnings: { title: 'Earnings Dashboard', subtitle: 'Track your income and payments' },
-                profile: { title: 'Profile Settings', subtitle: 'Manage your developer profile' }
-            };
-
-            document.getElementById('page-title').textContent = titles[section].title;
-            document.getElementById('page-subtitle').textContent = titles[section].subtitle;
-
-            // Load data for specific sections
-            if (section === 'marketplace') loadMarketplace();
-            if (section === 'projects') loadMyProjects();
-
-            // Close mobile sidebar
-            if (window.innerWidth < 768) {
-                document.querySelector('.sidebar').classList.remove('active');
-            }
-        };
-
-        // ==================== UTILITY FUNCTIONS ====================
-        window.refreshData = function() {
-            showNotification('Info', 'Refreshing data...', 'info');
-            loadMarketplace();
-            loadMyProjects();
-            loadRecentActivity();
-        };
-
-        function updateConnectionStatus() {
-            const statusEl = document.getElementById('connection-status');
-            if (statusEl) {
-                const dot = statusEl.querySelector('.w-2');
-                const text = statusEl.querySelector('span:last-child');
-
-                if (!isDemoMode && firebaseInitialized) {
-                    dot.className = 'w-2 h-2 rounded-full bg-green-500 mr-2';
-                    text.className = 'text-green-400';
-                    text.textContent = `Connected to ${firebaseConfig.projectId}`;
-                } else if (isDemoMode) {
-                    dot.className = 'w-2 h-2 rounded-full bg-yellow-500 mr-2';
-                    text.className = 'text-yellow-400';
-                    text.textContent = 'Demo Mode Active';
-                } else if (!isOnline) {
-                    dot.className = 'w-2 h-2 rounded-full bg-red-500 mr-2';
-                    text.className = 'text-red-400';
-                    text.textContent = 'Offline';
-                }
-            }
-        }
-
-        window.closeProjectModal = function() {
-            document.getElementById('project-modal').style.display = 'none';
-        };
-
-        function setupEventListeners() {
-            // Mobile menu
-            document.getElementById('mobile-menu-btn').addEventListener('click', () => {
-                document.querySelector('.sidebar').classList.toggle('active');
-            });
-
-            // Close sidebar on outside click
-            document.addEventListener('click', (e) => {
-                if (window.innerWidth < 768) {
-                    const sidebar = document.querySelector('.sidebar');
-                    const menuBtn = document.getElementById('mobile-menu-btn');
-                    if (sidebar && menuBtn && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
-                        sidebar.classList.remove('active');
-                    }
-                }
-            });
-
-            // Filter change
-            document.getElementById('marketplace-filter')?.addEventListener('change', loadMarketplace);
-        }
-
-        // ==================== NOTIFICATION SYSTEM ====================
-        function showLoading(message = 'Loading...') {
-            document.getElementById('loading-message').textContent = message;
-            document.getElementById('loading-overlay').classList.remove('hidden');
-        }
-
-        function hideLoading() {
-            document.getElementById('loading-overlay').classList.add('hidden');
-        }
-
-        window.showNotification = function(title, message, type = 'success') {
-            const notification = document.getElementById('notification');
-            const icon = document.getElementById('notification-icon');
-            const titleEl = document.getElementById('notification-title');
-            const msgEl = document.getElementById('notification-message');
-
-            icon.className = 'w-12 h-12 rounded-xl flex items-center justify-center mr-4';
-
-            switch(type) {
-                case 'success':
-                    icon.className += ' bg-green-500/20';
-                    icon.innerHTML = '<i class="fas fa-check text-green-500 text-xl"></i>';
-                    break;
-                case 'error':
-                    icon.className += ' bg-red-500/20';
-                    icon.innerHTML = '<i class="fas fa-exclamation-circle text-red-500 text-xl"></i>';
-                    break;
-                case 'info':
-                    icon.className += ' bg-blue-500/20';
-                    icon.innerHTML = '<i class="fas fa-info-circle text-blue-500 text-xl"></i>';
-                    break;
-                case 'warning':
-                    icon.className += ' bg-yellow-500/20';
-                    icon.innerHTML = '<i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>';
-                    break;
-            }
-
-            titleEl.textContent = title;
-            msgEl.textContent = message;
-
-            notification.classList.add('show');
-
-            setTimeout(hideNotification, 4000);
-        };
-
-        window.hideNotification = function() {
-            document.getElementById('notification').classList.remove('show');
-        };
-
-        // ==================== LOGOUT ====================
-        window.logout = async function() {
-            showLoading('Disconnecting...');
-
-            if (!isDemoMode && firebaseInitialized) {
-                await FirebaseService.signOut();
-            }
-
-            localStorage.removeItem('codenprofit_user');
-            currentUser = null;
-            userData = null;
-
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1000);
-        };
-
-        // ==================== HOST CONNECTIVITY ====================
-        // This function can be called to get host details for a project
-        window.getHostDetails = async function(hostId) {
-            if (isDemoMode || !firebaseInitialized) {
-                // Return demo host data
-                return {
-                    id: hostId,
-                    companyName: 'Demo Host Company',
-                    email: 'host@demo.com',
-                    avgRating: 4.5
-                };
-            }
-
-            try { 1
-                const result = await FirebaseService.getUserData(hostId, 'host');
-                if (result.success) {
-                    return result.data;
-                }
-                return null;
-            } catch (error) {
-                console.error('Error fetching host:', error);
-                return null;
-            }
-        };
-
-        // Function to message host (can be expanded)
-        window.messageHost = function(hostId, projectId) {
-            showNotification('Info', 'Messaging feature coming soon!', 'info');
-        };
-    </script>
+    <div class="tab-switch">
+      <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
+      <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">Create Account</button>
+    </div>
+
+    <div id="alertBox" class="alert alert-error"></div>
+    <div id="successBox" class="alert alert-success"></div>
+
+    <!-- LOGIN -->
+    <div id="loginSection" class="form-section active">
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="li-email" placeholder="you@company.com" autocomplete="email"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <div class="password-wrap">
+          <input type="password" id="li-pass" placeholder="Enter your password" autocomplete="current-password"/>
+          <button class="pw-toggle" onclick="togglePw('li-pass',this)">👁️</button>
+        </div>
+      </div>
+      <div class="forgot-link"><a onclick="handleForgotPassword()">Forgot password?</a></div>
+      <button class="btn-submit" id="btnLogin" onclick="handleLogin()">Sign In</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="registerSection" class="form-section">
+      <div class="type-grid">
+        <div class="type-card active" id="tcDev" onclick="selectType('developer')">
+          <div class="tc-icon">💻</div>
+          <div class="tc-title">Developer</div>
+          <div class="tc-sub">I want to work on projects</div>
+        </div>
+        <div class="type-card" id="tcHost" onclick="selectType('host')">
+          <div class="tc-icon">🏢</div>
+          <div class="tc-title">Host / Company</div>
+          <div class="tc-sub">I want to hire developers</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="rg-name" placeholder="John Doe"/>
+      </div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="rg-email" placeholder="you@company.com"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <div class="password-wrap">
+          <input type="password" id="rg-pass" placeholder="Create a strong password" oninput="checkStrength(this.value)"/>
+          <button class="pw-toggle" onclick="togglePw('rg-pass',this)">👁️</button>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+        <div class="strength-text" id="strengthText"></div>
+      </div>
+
+      <!-- DEV FIELDS -->
+      <div id="devFields">
+        <div class="field-row">
+          <div class="field">
+            <label>Primary Skill</label>
+            <select id="rg-skill">
+              <option value="">Select...</option>
+              <option>Full Stack Developer</option>
+              <option>Frontend Developer</option>
+              <option>Backend Developer</option>
+              <option>Mobile Developer</option>
+              <option>AI/ML Engineer</option>
+              <option>DevOps Engineer</option>
+              <option>Blockchain Developer</option>
+              <option>UI/UX Designer</option>
+              <option>Data Engineer</option>
+              <option>Cloud Architect</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Hourly Rate ($)</label>
+            <input type="number" id="rg-rate" placeholder="50" min="1"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOST FIELDS -->
+      <div id="hostFields" style="display:none">
+        <div class="field-row">
+          <div class="field">
+            <label>Company Name</label>
+            <input type="text" id="rg-company" placeholder="Acme Corp"/>
+          </div>
+          <div class="field">
+            <label>Industry</label>
+            <select id="rg-industry">
+              <option value="">Select...</option>
+              <option>Technology</option>
+              <option>Finance</option>
+              <option>Healthcare</option>
+              <option>E-Commerce</option>
+              <option>Education</option>
+              <option>Media &amp; Entertainment</option>
+              <option>Real Estate</option>
+              <option>Logistics</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="btnRegister" onclick="handleRegister()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+let selectedType = 'developer';
+
+window.addEventListener('load', () => {
+  initializeFirebase();
+  firebase.auth().onAuthStateChanged(async user => {
+    if (!user) return;
+    const res = await FirebaseService.getUserType(user.uid);
+    if (res.success) redirect(res.type);
+  });
+});
+
+function redirect(type) {
+  window.location.href = type === 'developer' ? 'dev.html' : 'index.html';
+}
+
+function switchTab(tab) {
+  ['login','register'].forEach(t => {
+    document.getElementById(t+'Section').classList.toggle('active', t===tab);
+    document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active', t===tab);
+  });
+  clearAlerts();
+}
+
+function selectType(type) {
+  selectedType = type;
+  document.getElementById('tcDev').classList.toggle('active', type==='developer');
+  document.getElementById('tcHost').classList.toggle('active', type==='host');
+  document.getElementById('devFields').style.display = type==='developer' ? 'block' : 'none';
+  document.getElementById('hostFields').style.display = type==='host' ? 'block' : 'none';
+}
+
+function showError(msg) {
+  const el = document.getElementById('alertBox');
+  el.textContent = '⚠ ' + msg; el.style.display = 'block';
+  document.getElementById('successBox').style.display = 'none';
+}
+function showSuccess(msg) {
+  const el = document.getElementById('successBox');
+  el.textContent = '✓ ' + msg; el.style.display = 'block';
+  document.getElementById('alertBox').style.display = 'none';
+}
+function clearAlerts() {
+  document.getElementById('alertBox').style.display = 'none';
+  document.getElementById('successBox').style.display = 'none';
+}
+
+function togglePw(id, btn) {
+  const el = document.getElementById(id);
+  if (el.type === 'password') { el.type = 'text'; btn.textContent = '🙈'; }
+  else { el.type = 'password'; btn.textContent = '👁️'; }
+}
+
+function checkStrength(val) {
+  const fill = document.getElementById('strengthFill');
+  const text = document.getElementById('strengthText');
+  if (!val) { fill.style.width='0'; text.textContent=''; return; }
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  const configs = ['','25%','50%','75%','100%'];
+  const colors  = ['','#f87171','#fbbf24','#60a5fa','#34d399'];
+  const labels  = ['','Weak','Fair','Good','Strong'];
+  fill.style.width  = configs[score];
+  fill.style.background = colors[score];
+  text.textContent  = labels[score];
+}
+
+async function handleLogin() {
+  const email = document.getElementById('li-email').value.trim();
+  const pass  = document.getElementById('li-pass').value;
+  if (!email || !pass) return showError('Please fill all fields');
+  const btn = document.getElementById('btnLogin');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Signing in...';
+  const res = await FirebaseService.signIn(email, pass);
+  if (res.success) {
+    const tRes = await FirebaseService.getUserType(res.user.uid);
+    if (tRes.success) {
+      localStorage.setItem('userType', tRes.type);
+      localStorage.setItem('userId', res.user.uid);
+      localStorage.setItem('userData', JSON.stringify(tRes.data));
+      showSuccess('Welcome back! Redirecting...');
+      setTimeout(() => redirect(tRes.type), 1000);
+    } else showError('Account data missing. Please contact support.');
+  } else {
+    const msg = res.error.replace('Firebase: ','').replace(/\(auth\/.*?\)/,'').trim();
+    showError(msg);
+  }
+  btn.disabled = false; btn.innerHTML = 'Sign In';
+}
+
+async function handleRegister() {
+  const name  = document.getElementById('rg-name').value.trim();
+  const email = document.getElementById('rg-email').value.trim();
+  const pass  = document.getElementById('rg-pass').value;
+  if (!name || !email || !pass) return showError('Please fill all required fields');
+  if (pass.length < 6) return showError('Password must be at least 6 characters');
+
+  const userData = { displayName: name, userType: selectedType };
+
+  if (selectedType === 'developer') {
+    const skill = document.getElementById('rg-skill').value;
+    const rate  = document.getElementById('rg-rate').value;
+    if (!skill) return showError('Please select your primary skill');
+    Object.assign(userData, {
+      primarySkill: skill, hourlyRate: rate || '0',
+      bio: '', skills: [skill], available: true,
+      rating: 0, reviewCount: 0, completedProjects: 0
+    });
+  } else {
+    const company  = document.getElementById('rg-company').value.trim();
+    const industry = document.getElementById('rg-industry').value;
+    if (!company) return showError('Please enter your company name');
+    Object.assign(userData, { companyName: company, industry: industry || 'Technology', teamSize: '', website: '' });
+  }
+
+  const btn = document.getElementById('btnRegister');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Creating account...';
+
+  const res = await FirebaseService.signUp(email, pass, userData);
+  if (res.success) {
+    localStorage.setItem('userType', selectedType);
+    localStorage.setItem('userId', res.user.uid);
+    localStorage.setItem('userData', JSON.stringify(userData));
+    showSuccess('Account created! Redirecting to your dashboard...');
+    setTimeout(() => redirect(selectedType), 1500);
+  } else {
+    const msg = res.error.replace('Firebase: ','').replace(/\(auth\/.*?\)/,'').trim();
+    showError(msg);
+    btn.disabled = false; btn.innerHTML = 'Create Account';
+  }
+}
+
+async function handleForgotPassword() {
+  const email = document.getElementById('li-email').value.trim();
+  if (!email) return showError('Enter your email address first');
+  const res = await FirebaseService.resetPassword(email);
+  if (res.success) showSuccess('Reset link sent! Check your email inbox.');
+  else showError(res.error.replace('Firebase: ',''));
+}
+</script>
 </body>
 </html>
